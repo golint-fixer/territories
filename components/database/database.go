@@ -41,7 +41,6 @@ func Migrate(models []interface{}) error {
 	db.LogMode(false)
 
 	db.AutoMigrate(models...)
-
 	logs.LogInfo("Database migrated")
 
 	return nil
