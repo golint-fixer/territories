@@ -7,6 +7,7 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 
+	"github.com/Quorumsco/contact/components/logs"
 	"github.com/Quorumsco/contact/components/settings"
 )
 
@@ -31,16 +32,17 @@ func Migrate(models []interface{}) error {
 		return err
 	}
 
-	// Then you could invoke `*sql.DB`'s functions with it
 	err = db.DB().Ping()
 	if err != nil {
 		return err
 	}
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxOpenConns(100)
-	db.LogMode(true)
+	db.LogMode(false)
 
 	db.AutoMigrate(models...)
+
+	logs.LogInfo("Database migrated")
 
 	return nil
 }

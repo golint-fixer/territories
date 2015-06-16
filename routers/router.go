@@ -1,17 +1,16 @@
 package routers
 
 import (
-	"log"
 	"net/http"
 	"path/filepath"
 
 	"github.com/Quorumsco/contact/components/application"
+	"github.com/Quorumsco/contact/components/logs"
+	"github.com/Quorumsco/contact/components/settings"
 	"github.com/Quorumsco/contact/controllers"
 	"github.com/silverwyrda/iogo"
 )
 
-// Since the app is fairly simple, no need to separate
-// all the urls
 func Init(app *application.Application) error {
 	mux := iogo.New()
 	//mux.Use(iogo.Logger)
@@ -26,7 +25,8 @@ func Init(app *application.Application) error {
 	wd, _ := filepath.Abs("public")
 	mux.Get("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir(wd))).ServeHTTP)
 
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	logs.LogInfo("Listening on http://localhost:" + settings.Port)
+	logs.LogCritical("%s", http.ListenAndServe(":"+settings.Port, mux))
 
 	return nil
 }
