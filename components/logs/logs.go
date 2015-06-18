@@ -7,10 +7,17 @@ import (
 	"github.com/fatih/color"
 )
 
-func logger(level string, c color.Attribute) func(format string, v ...interface{}) {
+func logger(level string, c color.Attribute) func(format interface{}, v ...interface{}) {
 	colorPrint := color.New(c).SprintFunc()
-	return func(format string, v ...interface{}) {
-		log.Printf("%s %s\n", colorPrint(level), fmt.Sprintf(format, v...))
+	return func(format interface{}, v ...interface{}) {
+		switch format.(type) {
+		case string:
+			log.Printf("%s %s\n", colorPrint(level), fmt.Sprintf(format.(string), v...))
+		case error:
+			log.Printf("%s %s\n", colorPrint(level), fmt.Sprint(format.(error)))
+		default:
+			log.Printf("%s %v\n", colorPrint(level), format)
+		}
 	}
 }
 

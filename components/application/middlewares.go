@@ -6,17 +6,17 @@ import (
 	"github.com/silverwyrda/iogo"
 )
 
-func (application *Application) ApplyTemplates(h http.Handler) http.Handler {
+func (app *Application) ApplyTemplates(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		iogo.GetContext(r).Env["Templates"] = application.Templates
+		iogo.GetContext(r).Env["Templates"] = app.Templates
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
 }
 
-func (application *Application) ApplyDB(h http.Handler) http.Handler {
+func (app *Application) ApplyDB(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		iogo.GetContext(r).Env["DB"] = application.DB
+		iogo.GetContext(r).Env["DB"] = app.DB
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)

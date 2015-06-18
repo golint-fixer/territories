@@ -2,10 +2,10 @@ package views
 
 import "github.com/Quorumsco/contact/models"
 
-type ContactsView struct {
+type Contacts struct {
 	Contacts []models.Contact `json:"contacts"`
 }
 
-type ContactView struct {
+type Contact struct {
 	Contact *models.Contact `json:"contact"`
 }

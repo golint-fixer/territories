@@ -1,13 +1,31 @@
 package views
 
 import (
+	"encoding/json"
 	"html/template"
 )
 
+type Request struct {
+	Data json.RawMessage `json:"data"`
+}
+
+type Success struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
+}
+
+type Fail struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
+}
+
+type Error struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 func Templates(funcMap *template.FuncMap) map[string]*template.Template {
 	var T = make(map[string]*template.Template)
-
-	//T["sample/sample_template"] = template.Must(template.ParseFiles("views/sample/base.tmpl", "views/sample/sample_template.tmpl"))
 
 	return T
 }

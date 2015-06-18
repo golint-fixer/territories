@@ -1,82 +1,165 @@
 package controllers
 
 import (
-	"encoding/json"
+	"database/sql"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 
+	"github.com/Quorumsco/contact/components/logs"
 	"github.com/Quorumsco/contact/models"
 	"github.com/Quorumsco/contact/views"
 	"github.com/silverwyrda/iogo"
 )
 
-func ContactList(w http.ResponseWriter, req *http.Request) {
+func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
 	db, _ := getEnv(req)
+	store := models.NewContactStore(db)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	contacts := models.FindAllContacts(db)
-
-	b, err := json.Marshal(views.ContactsView{Contacts: contacts})
+	contacts, err := store.Find()
 	if err != nil {
-		io.WriteString(w, "Error")
+		logs.LogError(err)
+		Error(w, req, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	w.Write(b)
+
+	Success(w, req, views.Contacts{Contacts: contacts}, http.StatusOK)
 }
 
-func ContactByID(w http.ResponseWriter, req *http.Request) {
+func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
 	db, _ := getEnv(req)
+	store := models.NewContactStore(db)
+
 	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
 	if err != nil {
+		logs.LogDebug(err)
+		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	contact := models.FindContactByID(db, id)
-
-	b, err := json.Marshal(views.ContactView{Contact: contact})
-	if err != nil {
-		io.WriteString(w, "Error")
+	var c = models.Contact{
+		ID: int64(id),
 	}
-	w.Write(b)
+	err = store.First(&c)
+	fmt.Println(&c)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			Success(w, req, nil, http.StatusNotFound)
+			return
+		}
+		logs.LogError(err)
+		Error(w, req, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	Success(w, req, views.Contact{Contact: &c}, http.StatusOK)
 }
 
-func ContactNew(w http.ResponseWriter, req *http.Request) {
+func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 	db, _ := getEnv(req)
+	store := models.NewContactStore(db)
 
-	decoder := json.NewDecoder(req.Body)
-	var c models.Contact
-	err := decoder.Decode(&c)
+	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
 	if err != nil {
-		fmt.Println(err)
+		logs.LogDebug(err)
+		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
 
-	//fmt.Println(c)
-
-	err = c.NewRecord(db)
+	var c = new(models.Contact)
+	c.ID = int64(id)
+	err = store.First(c)
 	if err != nil {
-		fmt.Println(err)
+		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	err = Request(&views.Contact{Contact: c}, req)
+	if err != nil {
+		logs.LogDebug(err)
+		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
+		return
+	}
+
+	c.ID = int64(id)
+
+	errs := c.Validate()
+	if len(errs) > 0 {
+		logs.LogDebug(errs)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		Fail(w, req, map[string]interface{}{"contact": errs}, http.StatusBadRequest)
+		return
+	}
+
+	err = store.Save(c)
+	if err != nil {
+		logs.LogError(err)
+		Error(w, req, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-
-	b, err := json.Marshal(views.ContactView{Contact: &c})
-	if err != nil {
-		io.WriteString(w, "Error")
-	}
-	w.Write(b)
+	Success(w, req, views.Contact{Contact: c}, http.StatusOK)
 }
 
-func ContactNewOptions(w http.ResponseWriter, req *http.Request) {
+func CreateContact(w http.ResponseWriter, req *http.Request) {
+	db, _ := getEnv(req)
+	store := models.NewContactStore(db)
+
+	var c = new(models.Contact)
+	err := Request(&views.Contact{Contact: c}, req)
+	if err != nil {
+		logs.LogDebug(err)
+		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
+		return
+	}
+
+	errs := c.Validate()
+	if len(errs) > 0 {
+		logs.LogDebug(errs)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		Fail(w, req, map[string]interface{}{"contact": errs}, http.StatusBadRequest)
+		return
+	}
+
+	err = store.Save(c)
+	if err != nil {
+		logs.LogError(err)
+		Error(w, req, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Location", fmt.Sprintf("/v1.0/%s/%d", "contacts", c.ID))
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	Success(w, req, views.Contact{Contact: c}, http.StatusCreated)
+}
+
+func CreateContactOptions(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,content-type")
+}
+
+func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
+	db, _ := getEnv(req)
+	store := models.NewContactStore(db)
+
+	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
+	if err != nil {
+		logs.LogDebug(err)
+		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
+		return
+	}
+
+	var c = new(models.Contact)
+	c.ID = int64(id)
+	err = store.Delete(c)
+	if err != nil {
+		logs.LogDebug(err)
+		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
+		return
+	}
+
+	Success(w, req, nil, http.StatusNoContent)
 }

@@ -13,3 +13,9 @@ func GetModels() []interface{} {
 		&Contact{}, &Address{},
 	}
 }
+
+func GetStores() []interface{} {
+	return []interface{}{
+		ContactSQL{},
+	}
+}

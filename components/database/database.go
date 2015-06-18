@@ -11,7 +11,12 @@ import (
 	"github.com/Quorumsco/contact/components/settings"
 )
 
-func Init() (*sqlx.DB, error) {
+type DB struct {
+	SQLX *sqlx.DB
+	//GORM *gorm.DB
+}
+
+func InitSQLX() (*sqlx.DB, error) {
 	var db *sqlx.DB
 	var err error
 
@@ -26,19 +31,29 @@ func Init() (*sqlx.DB, error) {
 	return db, nil
 }
 
-func Migrate(models []interface{}) error {
+func InitGORM() (*gorm.DB, error) {
 	db, err := gorm.Open(settings.DB.Engine, settings.DB.Source)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = db.DB().Ping()
 	if err != nil {
-		return err
+		return nil, err
 	}
+
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxOpenConns(100)
 	db.LogMode(false)
+
+	return &db, nil
+}
+
+func Migrate(models []interface{}) error {
+	db, err := InitGORM()
+	if err != nil {
+		return err
+	}
 
 	db.AutoMigrate(models...)
 	logs.LogInfo("Database migrated")

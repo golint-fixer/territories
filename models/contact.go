@@ -1,16 +1,12 @@
 package models
 
 import (
-	"database/sql"
-	"fmt"
 	"time"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/asaskevich/govalidator"
 )
 
 type Position struct {
-	//ID float64
-
 	X float64
 	Y float64
 
@@ -40,53 +36,31 @@ type Tag struct {
 }
 
 type Contact struct {
-	ID          int64
-	Firstname   string `sql:"not null"`
-	Surname     string `sql:"not null"`
-	MarriedName string `db:"married_name"`
-	Gender      string
-	Birthdate   time.Time
+	ID          int64      `json:"id"`
+	Firstname   *string    `sql:"not null" json:"firstname"`
+	Surname     *string    `sql:"not null" json:"surname"`
+	MarriedName *string    `db:"married_name" json:"married_name,omitempty"`
+	Gender      *string    `json:"gender,omitempty"`
+	Birthdate   *time.Time `json:"birthdate,omitempty"`
 
-	Mail   string
-	Phone  string
-	Mobile string
+	Mail   *string `json:"mail,omitempty"`
+	Phone  *string `json:"phone,omitempty"`
+	Mobile *string `json:"mobile,omitempty"`
 
-	Address *Address
-	Tags    []Tag
+	Address *Address `json:"address,omitempty"`
+	Tags    *[]Tag   `json:"tags,omitempty"`
 }
 
-func (c *Contact) NewRecord(db *sqlx.DB) error {
-	result, err := db.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile)", c)
-	if err != nil {
-		return err
+func (c *Contact) Validate() map[string]string {
+	var errs = make(map[string]string)
+	if c.Firstname == nil {
+		errs["firstname"] = "is required"
 	}
-	c.ID, err = result.LastInsertId()
-	return err
-}
-
-func (c *Contact) Update(db *sqlx.DB) error {
-	return nil
-}
-
-func (c *Contact) Delete(db *sqlx.DB) error {
-	return nil
-}
-
-func FindAllContacts(db *sqlx.DB) []Contact {
-	contacts := []Contact{}
-	if err := db.Select(&contacts, "SELECT id, firstname, lastname FROM contacts ORDER BY lastname DESC"); err != nil {
-		fmt.Println(err)
+	if c.Surname == nil {
+		errs["surname"] = "is required"
 	}
-	return contacts
-}
-
-func FindContactByID(db *sqlx.DB, id int) *Contact {
-	contact := Contact{}
-	if err := db.Get(&contact, "SELECT * FROM contacts WHERE id=? LIMIT 1", id); err != nil {
-		if err == sql.ErrNoRows {
-			return nil
-		}
-		fmt.Println(err)
+	if c.Mail != nil && !govalidator.IsEmail(*c.Mail) {
+		errs["mail"] = "is not valid"
 	}
-	return &contact
+	return errs
 }
