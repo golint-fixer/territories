@@ -7,7 +7,7 @@ fi
 contact -m &
 sleep 3
 PID=$!
-dredd
+dredd apiary.apib http://localhost:8080/
 RESULT=$?
 kill -9 $PID
 exit $RESULT
