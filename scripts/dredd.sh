@@ -2,7 +2,7 @@
 if [ "$CI" = "true" ]
 then
     npm update -g npm
-    npm install -g dredd@0.3.8
+    npm install -g dredd
 fi
 contact -m &
 sleep 3
