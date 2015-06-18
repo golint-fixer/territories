@@ -5,4 +5,4 @@ script:
  - go install -a -race std
  - export PATH=$HOME/gopath/bin:$PATH
  - go test -v ./...
- - scripts/dredd.sh
+ - ./scripts/dredd.sh
