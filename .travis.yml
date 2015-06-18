@@ -1,8 +1,13 @@
 language: go
 go: 
  - tip
+before_install:
+ - go get github.com/axw/gocov/gocov
+ - go get github.com/mattn/goveralls
+ - go get code.google.com/p/go.tools/cmd/cover
 script:
  - go install -a -race std
  - export PATH=$HOME/gopath/bin:$PATH
- - go test -v ./...
+ - go test -v -covermode=count -coverprofile=coverage.out ./...
+ - goveralls -coverprofile=coverage.out -service travis-ci -repotoken $COVERALLS_TOKEN
  - ./scripts/dredd.sh
