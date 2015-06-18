@@ -11,3 +11,5 @@ script:
  - go test -v -covermode=count -coverprofile=coverage.out ./...
  - goveralls -coverprofile=coverage.out -service travis-ci -repotoken $COVERALLS_TOKEN
  - ./scripts/dredd.sh
+after_success:
+ - curl -H "Content-Type: application/json" --data '{"build": true}' -X POST "https://registry.hub.docker.com/u/silverwyrda/contact/trigger/$DOCKERHUB_TOKEN/"
