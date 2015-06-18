@@ -8,6 +8,6 @@ before_install:
 script:
  - go install -a -race std
  - export PATH=$HOME/gopath/bin:$PATH
- - go test -v -covermode=count -coverprofile=coverage.out ./...
- - goveralls -coverprofile=coverage.out -service travis-ci -repotoken $COVERALLS_TOKEN
+ - go test -v
+ - ./scripts/cover.sh
  - ./scripts/dredd.sh
