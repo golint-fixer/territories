@@ -5,4 +5,4 @@
 ### [API specification on Apiary](http://docs.quorums.apiary.io/)
 
 # Contact
-Contact managing backend
+Contact managing backend.
