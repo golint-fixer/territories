@@ -23,9 +23,9 @@ func main() {
 	cmd.Version = "0.0.1"
 	cmd.Before = serve
 	cmd.Flags = append(cmd.Flags, []cli.Flag{
-		cli.StringFlag{"cpu, cpuprofile", "", "cpu profiling", ""},
-		cli.BoolFlag{"m, migrate", "migrate the database", ""},
-		cli.StringFlag{"port, p", "8080", "server listening port", ""},
+		cli.StringFlag{Name: "cpu, cpuprofile", Usage: "cpu profiling"},
+		cli.BoolFlag{Name: "m, migrate", Usage: "migrate the database"},
+		cli.StringFlag{Name: "port, p", Value: "8080", Usage: "server listening port"},
 		cli.HelpFlag,
 	}...)
 	cmd.RunAndExitOnError()
