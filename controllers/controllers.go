@@ -5,9 +5,9 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/Quorumsco/contact/components/database"
-	"github.com/Quorumsco/contact/components/logs"
-	"github.com/Quorumsco/contact/views"
+	"../components/database"
+	"../components/logs"
+	"../views"
 	"github.com/silverwyrda/iogo"
 )
 

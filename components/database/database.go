@@ -7,8 +7,8 @@ import (
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/Quorumsco/contact/components/logs"
-	"github.com/Quorumsco/contact/components/settings"
+	"../logs"
+	"../settings"
 )
 
 type DB struct {

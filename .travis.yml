@@ -7,7 +7,7 @@ before_install:
  - go get github.com/golang/lint/golint
  - go get golang.org/x/tools/cmd/goimports
 script:
- - go install -a -race std
+ #- go install -a -race std
  - export PATH=$HOME/gopath/bin:$PATH
  - ./scripts/cover.sh
  - ./scripts/dredd.sh

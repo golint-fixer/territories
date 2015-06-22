@@ -3,7 +3,7 @@ package models
 import (
 	"database/sql"
 
-	"github.com/Quorumsco/contact/components/database"
+	"../components/database"
 )
 
 type ContactStore interface {

@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/Quorumsco/contact/components/application"
-	"github.com/Quorumsco/contact/controllers"
+	"../components/application"
+	"../controllers"
 	"github.com/silverwyrda/iogo"
 )
 

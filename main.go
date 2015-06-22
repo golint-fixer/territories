@@ -3,12 +3,12 @@ package main
 import (
 	"runtime"
 
-	"github.com/Quorumsco/contact/components/application"
-	"github.com/Quorumsco/contact/components/cmd"
-	"github.com/Quorumsco/contact/components/database"
-	"github.com/Quorumsco/contact/components/settings"
-	"github.com/Quorumsco/contact/models"
-	"github.com/Quorumsco/contact/routers"
+	"./components/application"
+	"./components/cmd"
+	"./components/database"
+	"./components/settings"
+	"./models"
+	"./routers"
 	"github.com/codegangsta/cli"
 )
 

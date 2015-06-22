@@ -7,10 +7,10 @@ import (
 
 	"github.com/silverwyrda/iogo"
 
-	"github.com/Quorumsco/contact/components/database"
-	"github.com/Quorumsco/contact/components/logs"
-	"github.com/Quorumsco/contact/components/settings"
-	"github.com/Quorumsco/contact/views"
+	"../../views"
+	"../database"
+	"../logs"
+	"../settings"
 )
 
 type Mux interface {

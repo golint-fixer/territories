@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Quorumsco/contact/components/logs"
-	"github.com/Quorumsco/contact/models"
-	"github.com/Quorumsco/contact/views"
+	"../components/logs"
+	"../models"
+	"../views"
 	"github.com/silverwyrda/iogo"
 )
 
