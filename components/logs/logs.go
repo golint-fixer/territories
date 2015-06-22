@@ -22,19 +22,19 @@ func logger(level string, c color.Attribute) func(format interface{}, v ...inter
 }
 
 // Debug logger
-var LogDebug = logger("DEBU", color.FgCyan)
+var Debug = logger("DEBU", color.FgCyan)
 
 // Info logger
-var LogInfo = logger("INFO", color.Reset)
+var Info = logger("INFO", color.Reset)
 
 // Notice logger
-var LogNotice = logger("NOTI", color.FgGreen)
+var Notice = logger("NOTI", color.FgGreen)
 
 // Warning logger
-var LogWarning = logger("WARN", color.FgYellow)
+var Warning = logger("WARN", color.FgYellow)
 
 // Error logger
-var LogError = logger("ERRO", color.FgRed)
+var Error = logger("ERRO", color.FgRed)
 
 // Critical logger
-var LogCritical = logger("CRIT", color.FgMagenta)
+var Critical = logger("CRIT", color.FgMagenta)

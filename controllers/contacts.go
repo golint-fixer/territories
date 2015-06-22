@@ -18,7 +18,7 @@ func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
 
 	contacts, err := store.Find()
 	if err != nil {
-		logs.LogError(err)
+		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -32,7 +32,7 @@ func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
 
 	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
 	if err != nil {
-		logs.LogDebug(err)
+		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
@@ -47,7 +47,7 @@ func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
 			Success(w, req, nil, http.StatusNotFound)
 			return
 		}
-		logs.LogError(err)
+		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -62,7 +62,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 
 	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
 	if err != nil {
-		logs.LogDebug(err)
+		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
@@ -77,7 +77,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 
 	err = Request(&views.Contact{Contact: c}, req)
 	if err != nil {
-		logs.LogDebug(err)
+		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
 	}
@@ -86,7 +86,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 
 	errs := c.Validate()
 	if len(errs) > 0 {
-		logs.LogDebug(errs)
+		logs.Debug(errs)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		Fail(w, req, map[string]interface{}{"contact": errs}, http.StatusBadRequest)
 		return
@@ -94,7 +94,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 
 	err = store.Save(c)
 	if err != nil {
-		logs.LogError(err)
+		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -110,14 +110,14 @@ func CreateContact(w http.ResponseWriter, req *http.Request) {
 	var c = new(models.Contact)
 	err := Request(&views.Contact{Contact: c}, req)
 	if err != nil {
-		logs.LogDebug(err)
+		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
 	}
 
 	errs := c.Validate()
 	if len(errs) > 0 {
-		logs.LogDebug(errs)
+		logs.Debug(errs)
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		Fail(w, req, map[string]interface{}{"contact": errs}, http.StatusBadRequest)
 		return
@@ -125,7 +125,7 @@ func CreateContact(w http.ResponseWriter, req *http.Request) {
 
 	err = store.Save(c)
 	if err != nil {
-		logs.LogError(err)
+		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -147,7 +147,7 @@ func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
 
 	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
 	if err != nil {
-		logs.LogDebug(err)
+		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
@@ -156,7 +156,7 @@ func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
 	c.ID = int64(id)
 	err = store.Delete(c)
 	if err != nil {
-		logs.LogDebug(err)
+		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}

@@ -56,7 +56,7 @@ func Migrate(models []interface{}) error {
 	}
 
 	db.AutoMigrate(models...)
-	logs.LogInfo("Database migrated")
+	logs.Info("Database migrated")
 
 	return nil
 }

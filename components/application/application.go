@@ -97,8 +97,8 @@ func (app *Application) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func (app *Application) Serve() {
-	logs.LogInfo("Listening on http://localhost:%s", settings.Port)
-	logs.LogCritical(http.ListenAndServe(":"+settings.Port, app.Mux))
+	logs.Info("Listening on http://localhost:%s", settings.Port)
+	logs.Critical(http.ListenAndServe(":"+settings.Port, app.Mux))
 }
 
 func (app *Application) Load(urls func(app *Application)) {

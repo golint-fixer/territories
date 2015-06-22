@@ -23,7 +23,7 @@ func Success(w http.ResponseWriter, req *http.Request, data interface{}, status 
 
 	b, err := json.Marshal(views.Success{Status: "success", Data: data})
 	if err != nil {
-		logs.LogError(err)
+		logs.Error(err)
 		return
 	}
 
@@ -35,7 +35,7 @@ func Success(w http.ResponseWriter, req *http.Request, data interface{}, status 
 func Fail(w http.ResponseWriter, req *http.Request, data interface{}, status int) {
 	b, err := json.Marshal(views.Fail{Status: "fail", Data: data})
 	if err != nil {
-		logs.LogError(err)
+		logs.Error(err)
 		return
 	}
 
@@ -47,7 +47,7 @@ func Fail(w http.ResponseWriter, req *http.Request, data interface{}, status int
 func Error(w http.ResponseWriter, req *http.Request, message string, status int) {
 	b, err := json.Marshal(views.Error{Status: "success", Message: message})
 	if err != nil {
-		logs.LogError(err)
+		logs.Error(err)
 		return
 	}
 
