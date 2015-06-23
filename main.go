@@ -45,6 +45,8 @@ func serve(ctx *cli.Context) error {
 		return err
 	}
 
+	app.Mux = router.New()
+
 	app.Use(router.Logger)
 	app.Use(app.Apply)
 
