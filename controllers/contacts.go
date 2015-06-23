@@ -8,7 +8,8 @@ import (
 
 	"github.com/Quorumsco/contact/models"
 	"github.com/Quorumsco/contact/views"
-	_ "github.com/iogo-framework/jsonapi"
+	. "github.com/iogo-framework/jsonapi"
+	"github.com/iogo-framework/router"
 
 	"github.com/iogo-framework/logs"
 )
@@ -31,7 +32,7 @@ func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
 	db, _ := getEnv(req)
 	store := models.NewContactStore(db)
 
-	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
+	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
@@ -61,7 +62,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 	db, _ := getEnv(req)
 	store := models.NewContactStore(db)
 
-	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
+	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
@@ -146,7 +147,7 @@ func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
 	db, _ := getEnv(req)
 	store := models.NewContactStore(db)
 
-	id, err := strconv.Atoi(iogo.GetContext(req).GetParam("id"))
+	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)

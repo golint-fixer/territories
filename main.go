@@ -6,11 +6,9 @@ import (
 	"runtime"
 
 	"github.com/Quorumsco/contact/controllers"
-	"github.com/Quorumsco/contact/models"
 	"github.com/codegangsta/cli"
 	"github.com/iogo-framework/application"
 	"github.com/iogo-framework/cmd"
-	"github.com/iogo-framework/databases"
 	"github.com/iogo-framework/router"
 )
 
@@ -38,9 +36,9 @@ func serve(ctx *cli.Context) error {
 	var err error
 
 	if ctx.Bool("migrate") {
-		if err = databases.Migrate(models.Models()); err != nil {
-			return err
-		}
+		//if err = databases.Migrate(models.Models()); err != nil {
+		//return err
+		//}
 	}
 
 	if app, err = application.New(); err != nil {
