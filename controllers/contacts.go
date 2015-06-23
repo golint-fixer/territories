@@ -6,10 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"../components/logs"
-	"../models"
-	"../views"
-	"github.com/silverwyrda/iogo"
+	"github.com/Quorumsco/contact/models"
+	"github.com/Quorumsco/contact/views"
+	_ "github.com/iogo-framework/jsonapi"
+
+	"github.com/iogo-framework/logs"
 )
 
 func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {

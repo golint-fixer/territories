@@ -1,6 +1,6 @@
 package views
 
-import "../models"
+import "github.com/Quorumsco/contact/models"
 
 type Contacts struct {
 	Contacts []models.Contact `json:"contacts"`

@@ -6,15 +6,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Model interface{}
-
-func GetModels() []interface{} {
+func Models() []interface{} {
 	return []interface{}{
 		&Contact{}, &Address{},
 	}
 }
 
-func GetStores() []interface{} {
+func Stores() []interface{} {
 	return []interface{}{
 		ContactSQL{},
 	}

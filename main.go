@@ -1,15 +1,17 @@
 package main
 
 import (
+	"net/http"
+	"path/filepath"
 	"runtime"
 
-	"./components/application"
-	"./components/cmd"
-	"./components/database"
-	"./components/settings"
-	"./models"
-	"./routers"
+	"github.com/Quorumsco/contact/controllers"
+	"github.com/Quorumsco/contact/models"
 	"github.com/codegangsta/cli"
+	"github.com/iogo-framework/application"
+	"github.com/iogo-framework/cmd"
+	"github.com/iogo-framework/databases"
+	"github.com/iogo-framework/router"
 )
 
 func init() {
@@ -25,7 +27,7 @@ func main() {
 	cmd.Flags = append(cmd.Flags, []cli.Flag{
 		cli.StringFlag{Name: "cpu, cpuprofile", Usage: "cpu profiling"},
 		cli.BoolFlag{Name: "m, migrate", Usage: "migrate the database"},
-		cli.StringFlag{Name: "port, p", Value: "8080", Usage: "server listening port"},
+		cli.IntFlag{Name: "port, p", Value: 8080, Usage: "server listening port"},
 		cli.HelpFlag,
 	}...)
 	cmd.RunAndExitOnError()
@@ -36,19 +38,30 @@ func serve(ctx *cli.Context) error {
 	var err error
 
 	if ctx.Bool("migrate") {
-		if err = database.Migrate(models.GetModels()); err != nil {
+		if err = databases.Migrate(models.Models()); err != nil {
 			return err
 		}
 	}
-
-	settings.Port = ctx.String("port")
 
 	if app, err = application.New(); err != nil {
 		return err
 	}
 
-	app.Load(routers.URLs)
-	app.Serve()
+	app.Use(router.Logger)
+	app.Use(app.Apply)
+
+	app.Post("/contacts", controllers.CreateContact)
+	app.Options("/contacts", controllers.CreateContactOptions) // Required for CORS
+	app.Get("/contacts", controllers.RetrieveContactCollection)
+
+	app.Get("/contacts/:id", controllers.RetrieveContactByID)
+	app.Patch("/contacts/:id", controllers.UpdateContactByID)
+	app.Delete("/contacts/:id", controllers.DeleteContactByID)
+
+	wd, _ := filepath.Abs("public")
+	app.Get("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir(wd))).ServeHTTP)
+
+	app.Serve(ctx.Int("port"))
 
 	return nil
 }
