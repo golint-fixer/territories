@@ -4,8 +4,8 @@ import (
 	"runtime"
 	"text/template"
 
-	"github.com/Quorumsco/contact/controllers"
-	"github.com/Quorumsco/contact/models"
+	"github.com/Quorumsco/contacts/controllers"
+	"github.com/Quorumsco/contacts/models"
 	"github.com/codegangsta/cli"
 	"github.com/iogo-framework/application"
 	"github.com/iogo-framework/cmd"
@@ -21,8 +21,8 @@ func init() {
 
 func main() {
 	cmd := cmd.New()
-	cmd.Name = "contact"
-	cmd.Usage = "Quorums contact backend"
+	cmd.Name = "contacts"
+	cmd.Usage = "Quorums contacts backend"
 	cmd.Version = "0.0.1"
 	cmd.Before = serve
 	cmd.Flags = append(cmd.Flags, []cli.Flag{
@@ -73,7 +73,7 @@ func serve(ctx *cli.Context) error {
 }
 
 func migrate() {
-	db, err := gorm.Open("sqlite3", "/tmp/contact.db")
+	db, err := gorm.Open("sqlite3", "/tmp/contacts.db")
 	if err != nil {
 		logs.Error(err)
 		return
@@ -96,7 +96,7 @@ func initSQLX() (*sqlx.DB, error) {
 	var db *sqlx.DB
 	var err error
 
-	if db, err = sqlx.Connect("sqlite3", "/tmp/contact.db"); err != nil {
+	if db, err = sqlx.Connect("sqlite3", "/tmp/contacts.db"); err != nil {
 		return nil, err
 	}
 

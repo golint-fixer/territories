@@ -7,8 +7,8 @@ WORKDIR /go/src/github.com/Quorumsco/contacts
 
 RUN \
   go get && \
-  go build main.go
+  go build
 
 EXPOSE 8080
 
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["./contacts"]

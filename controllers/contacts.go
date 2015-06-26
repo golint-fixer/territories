@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Quorumsco/contact/models"
-	"github.com/Quorumsco/contact/views"
+	"github.com/Quorumsco/contacts/models"
+	"github.com/Quorumsco/contacts/views"
 	. "github.com/iogo-framework/jsonapi"
 	"github.com/iogo-framework/router"
 
