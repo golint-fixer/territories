@@ -15,8 +15,8 @@ import (
 )
 
 func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
-	db, _ := getEnv(req)
-	store := models.NewContactStore(db)
+	db := getDB(req)
+	store := models.ContactStore(db)
 
 	contacts, err := store.Find()
 	if err != nil {
@@ -29,8 +29,8 @@ func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
 }
 
 func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
-	db, _ := getEnv(req)
-	store := models.NewContactStore(db)
+	db := getDB(req)
+	store := models.ContactStore(db)
 
 	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
 	if err != nil {
@@ -59,8 +59,8 @@ func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
 }
 
 func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
-	db, _ := getEnv(req)
-	store := models.NewContactStore(db)
+	db := getDB(req)
+	store := models.ContactStore(db)
 
 	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
 	if err != nil {
@@ -106,8 +106,8 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 }
 
 func CreateContact(w http.ResponseWriter, req *http.Request) {
-	db, _ := getEnv(req)
-	store := models.NewContactStore(db)
+	db := getDB(req)
+	store := models.ContactStore(db)
 
 	var c = new(models.Contact)
 	err := Request(&views.Contact{Contact: c}, req)
@@ -144,8 +144,8 @@ func CreateContactOptions(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
-	db, _ := getEnv(req)
-	store := models.NewContactStore(db)
+	db := getDB(req)
+	store := models.ContactStore(db)
 
 	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
 	if err != nil {

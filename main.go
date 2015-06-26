@@ -1,15 +1,18 @@
 package main
 
 import (
-	"net/http"
-	"path/filepath"
 	"runtime"
+	"text/template"
 
 	"github.com/Quorumsco/contact/controllers"
+	"github.com/Quorumsco/contact/models"
 	"github.com/codegangsta/cli"
 	"github.com/iogo-framework/application"
 	"github.com/iogo-framework/cmd"
+	"github.com/iogo-framework/logs"
 	"github.com/iogo-framework/router"
+	"github.com/jinzhu/gorm"
+	"github.com/jmoiron/sqlx"
 )
 
 func init() {
@@ -25,7 +28,7 @@ func main() {
 	cmd.Flags = append(cmd.Flags, []cli.Flag{
 		cli.StringFlag{Name: "cpu, cpuprofile", Usage: "cpu profiling"},
 		cli.BoolFlag{Name: "m, migrate", Usage: "migrate the database"},
-		cli.IntFlag{Name: "port, p", Value: 8080, Usage: "server listening port"},
+		cli.StringFlag{Name: "listen, l", Value: "localhost:8080", Usage: "server listening port"},
 		cli.HelpFlag,
 	}...)
 	cmd.RunAndExitOnError()
@@ -36,14 +39,20 @@ func serve(ctx *cli.Context) error {
 	var err error
 
 	if ctx.Bool("migrate") {
-		//if err = databases.Migrate(models.Models()); err != nil {
-		//return err
-		//}
+		migrate()
+		logs.Debug("Database migrated")
 	}
 
 	if app, err = application.New(); err != nil {
 		return err
 	}
+
+	app.Components["DB"], err = initSQLX()
+	if err != nil {
+		return err
+	}
+
+	app.Components["Templates"] = make(map[string]*template.Template)
 
 	app.Mux = router.New()
 
@@ -58,10 +67,42 @@ func serve(ctx *cli.Context) error {
 	app.Patch("/contacts/:id", controllers.UpdateContactByID)
 	app.Delete("/contacts/:id", controllers.DeleteContactByID)
 
-	wd, _ := filepath.Abs("public")
-	app.Get("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir(wd))).ServeHTTP)
-
-	app.Serve(ctx.Int("port"))
+	app.Serve(ctx.String("listen"))
 
 	return nil
+}
+
+func migrate() {
+	db, err := gorm.Open("sqlite3", "/tmp/contact.db")
+	if err != nil {
+		logs.Error(err)
+		return
+	}
+
+	err = db.DB().Ping()
+	if err != nil {
+		logs.Error(err)
+		return
+	}
+
+	db.DB().SetMaxIdleConns(10)
+	db.DB().SetMaxOpenConns(100)
+	db.LogMode(false)
+
+	db.AutoMigrate(models.Models()...)
+}
+
+func initSQLX() (*sqlx.DB, error) {
+	var db *sqlx.DB
+	var err error
+
+	if db, err = sqlx.Connect("sqlite3", "/tmp/contact.db"); err != nil {
+		return nil, err
+	}
+
+	db.Ping()
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(100)
+
+	return db, nil
 }

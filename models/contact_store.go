@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type ContactStore interface {
+type ContactDS interface {
 	Save(*Contact) error
 	Delete(*Contact) error
 	First(*Contact) error
@@ -17,7 +17,7 @@ type ContactSQL struct {
 	DB *sqlx.DB
 }
 
-func NewContactStore(db *sqlx.DB) ContactStore {
+func ContactStore(db *sqlx.DB) ContactDS {
 	return &ContactSQL{DB: db}
 }
 

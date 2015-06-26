@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"html/template"
 	"net/http"
 
 	"github.com/iogo-framework/application"
@@ -9,6 +8,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func getEnv(r *http.Request) (*sqlx.DB, map[string]*template.Template) {
-	return router.GetContext(r).Env["Application"].(*application.Application).DB.(*sqlx.DB), router.GetContext(r).Env["Application"].(*application.Application).Templates
+func getDB(r *http.Request) *sqlx.DB {
+	return router.GetContext(r).Env["Application"].(*application.Application).Components["DB"].(*sqlx.DB)
 }
