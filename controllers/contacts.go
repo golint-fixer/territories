@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Quorumsco/contacts/models"
-	"github.com/Quorumsco/contacts/views"
 	. "github.com/iogo-framework/jsonapi"
 	"github.com/iogo-framework/router"
+	"github.com/quorumsco/contacts/models"
+	"github.com/quorumsco/contacts/views"
 
 	"github.com/iogo-framework/logs"
 )

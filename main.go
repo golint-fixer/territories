@@ -4,8 +4,6 @@ import (
 	"runtime"
 	"text/template"
 
-	"github.com/Quorumsco/contacts/controllers"
-	"github.com/Quorumsco/contacts/models"
 	"github.com/codegangsta/cli"
 	"github.com/iogo-framework/application"
 	"github.com/iogo-framework/cmd"
@@ -13,6 +11,8 @@ import (
 	"github.com/iogo-framework/router"
 	"github.com/jinzhu/gorm"
 	"github.com/jmoiron/sqlx"
+	"github.com/quorumsco/contacts/controllers"
+	"github.com/quorumsco/contacts/models"
 )
 
 func init() {
@@ -22,7 +22,7 @@ func init() {
 func main() {
 	cmd := cmd.New()
 	cmd.Name = "contacts"
-	cmd.Usage = "Quorums contacts backend"
+	cmd.Usage = "quorums contacts backend"
 	cmd.Version = "0.0.1"
 	cmd.Before = serve
 	cmd.Flags = append(cmd.Flags, []cli.Flag{

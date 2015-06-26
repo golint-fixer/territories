@@ -1,9 +1,9 @@
 FROM golang
 MAINTAINER Douézan-Grard Guillaume - Quorums
 
-ADD . /go/src/github.com/Quorumsco/contacts
+ADD . /go/src/github.com/quorumsco/contacts
 
-WORKDIR /go/src/github.com/Quorumsco/contacts
+WORKDIR /go/src/github.com/quorumsco/contacts
 
 RUN \
   go get && \
