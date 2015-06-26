@@ -4,8 +4,8 @@ then
     npm update -g npm
     npm install -g dredd
 fi
-go build main.go; true
-./main -m &
+go build
+./contact -m &
 sleep 3
 PID=$!
 dredd apiary.apib http://localhost:8080/
