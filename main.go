@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"runtime"
 	"text/template"
 
@@ -58,18 +59,29 @@ func serve(ctx *cli.Context) error {
 
 	app.Use(router.Logger)
 	app.Use(app.Apply)
+	app.Use(cors)
 
 	app.Post("/contacts", controllers.CreateContact)
-	app.Options("/contacts", controllers.CreateContactOptions) // Required for CORS
+	app.Options("/contacts", controllers.ContactCollectionOptions) // Required for CORS
 	app.Get("/contacts", controllers.RetrieveContactCollection)
 
 	app.Get("/contacts/:id", controllers.RetrieveContactByID)
 	app.Patch("/contacts/:id", controllers.UpdateContactByID)
+	app.Options("/contacts/:id", controllers.ContactOptions) // Required for CORS
 	app.Delete("/contacts/:id", controllers.DeleteContactByID)
 
 	app.Serve(ctx.String("listen"))
 
 	return nil
+}
+
+func cors(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,content-type")
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
 }
 
 func migrate() {

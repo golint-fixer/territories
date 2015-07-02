@@ -132,15 +132,21 @@ func CreateContact(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Location", fmt.Sprintf("/v1.0/%s/%d", "contacts", c.ID))
+	w.Header().Set("Location", fmt.Sprintf("/%s/%d", "contacts", c.ID))
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	Success(w, req, views.Contact{Contact: c}, http.StatusCreated)
 }
 
-func CreateContactOptions(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+func ContactCollectionOptions(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,content-type")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,access-control-allow-methods,content-type")
+}
+
+func ContactOptions(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,access-control-allow-methods,content-type")
 }
 
 func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
@@ -162,6 +168,6 @@ func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
-
+	w.Header().Set("Content-Type", "text/plain")
 	Success(w, req, nil, http.StatusNoContent)
 }
