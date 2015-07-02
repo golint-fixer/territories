@@ -32,7 +32,7 @@ func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
 	db := getDB(req)
 	store := models.ContactStore(db)
 
-	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
+	id, err := strconv.Atoi(router.Context(req).Param("id"))
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
@@ -62,7 +62,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 	db := getDB(req)
 	store := models.ContactStore(db)
 
-	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
+	id, err := strconv.Atoi(router.Context(req).Param("id"))
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
@@ -153,7 +153,7 @@ func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
 	db := getDB(req)
 	store := models.ContactStore(db)
 
-	id, err := strconv.Atoi(router.GetContext(req).GetParam("id"))
+	id, err := strconv.Atoi(router.Context(req).Param("id"))
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
