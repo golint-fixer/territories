@@ -68,9 +68,7 @@ func serve(ctx *cli.Context) error {
 	app.Options("/contacts/:id", controllers.ContactOptions) // Required for CORS
 	app.Delete("/contacts/:id", controllers.DeleteContactByID)
 
-	app.Serve(ctx.String("listen"))
-
-	return nil
+	return app.Serve(ctx.String("listen"))
 }
 
 func cors(h http.Handler) http.Handler {
