@@ -122,7 +122,7 @@ func migrate(dialect string, args string) error {
 		return err
 	}
 
-	db.LogMode(false)
+	db.LogMode(true)
 
 	db.AutoMigrate(models.Models()...)
 
