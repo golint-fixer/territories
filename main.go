@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"runtime"
 	"text/template"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/iogo-framework/application"
@@ -69,7 +71,7 @@ func serve(ctx *cli.Context) error {
 			ctx.Int("postgres-port"),
 			ctx.String("postgres-db"),
 		)
-		logs.Debug("Database %s at %s", dialect, ctx.String("postgres-host"))
+		logs.Debug("Loading database %s at %s", dialect, ctx.String("postgres-host"))
 	case "sqlite3":
 		fallthrough
 	default:
@@ -84,10 +86,18 @@ func serve(ctx *cli.Context) error {
 	}
 
 	app = application.New()
-	if app.Components["DB"], err = sqlx.Connect(dialect, args); err != nil {
-		return err
+	var i = 1
+	for {
+		if app.Components["DB"], err = sqlx.Connect(dialect, args); err != nil {
+			logs.Error(err)
+			i++
+		}
+		if i > 3 {
+			logs.Critical("Cannot connect to database")
+			os.Exit(1)
+		}
+		time.Sleep(5 * time.Second)
 	}
-
 	app.Components["Templates"] = make(map[string]*template.Template)
 	app.Components["Mux"] = router.New()
 
