@@ -5,16 +5,13 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"text/template"
-	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/iogo-framework/application"
 	"github.com/iogo-framework/cmd"
+	"github.com/iogo-framework/databases"
 	"github.com/iogo-framework/logs"
 	"github.com/iogo-framework/router"
-	"github.com/jinzhu/gorm"
-	"github.com/jmoiron/sqlx"
 	"github.com/quorumsco/contacts/controllers"
 	"github.com/quorumsco/contacts/models"
 )
@@ -50,7 +47,6 @@ func main() {
 	cmd.RunAndExitOnError()
 }
 
-// TODO: Add Ping to the database when not migrating
 func serve(ctx *cli.Context) error {
 	var app *application.Application
 	var err error
@@ -81,26 +77,18 @@ func serve(ctx *cli.Context) error {
 	}
 
 	if ctx.Bool("migrate") {
-		migrate(dialect, args)
+		if err := migrate(dialect, args); err != nil {
+			logs.Critical(err)
+			os.Exit(1)
+		}
 		logs.Debug("Database migrated successfully")
 	}
 
 	app = application.New()
-	var i = 1
-	for {
-		if app.Components["DB"], err = sqlx.Connect(dialect, args); err != nil {
-			logs.Error(err)
-			i++
-		} else {
-			break
-		}
-		if i > 3 {
-			logs.Critical("Cannot connect to database")
-			os.Exit(1)
-		}
-		time.Sleep(5 * time.Second)
+	if app.Components["DB"], err = databases.InitSQLX(dialect, args); err != nil {
+		logs.Critical(err)
+		os.Exit(1)
 	}
-	app.Components["Templates"] = make(map[string]*template.Template)
 	app.Components["Mux"] = router.New()
 
 	app.Use(router.Logger)
@@ -128,22 +116,15 @@ func cors(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func migrate(dialect string, args string) {
-	db, err := gorm.Open(dialect, args)
+func migrate(dialect string, args string) error {
+	db, err := databases.InitGORM(dialect, args)
 	if err != nil {
-		logs.Error(err)
-		return
+		return err
 	}
 
-	err = db.DB().Ping()
-	if err != nil {
-		logs.Error(err)
-		return
-	}
-
-	db.DB().SetMaxIdleConns(10)
-	db.DB().SetMaxOpenConns(100)
 	db.LogMode(false)
 
 	db.AutoMigrate(models.Models()...)
+
+	return nil
 }
