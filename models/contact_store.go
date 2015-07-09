@@ -23,18 +23,20 @@ func ContactStore(db *sqlx.DB) ContactDS {
 
 func (s *ContactSQL) Save(c *Contact) error {
 	if c.ID == 0 {
-		var result sql.Result
 		var err error
 		if s.DB.DriverName() == "postgres" {
-			result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile) RETURNING id", c)
+			var result *sqlx.Rows
+			result, err = s.DB.NamedQuery("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile) RETURNING id", c)
+			result.Scan(&c.ID)
 		} else {
-			result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile)", c)
+			var result sql.Result
+			_, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile)", c)
+			c.ID, err = result.LastInsertId()
 		}
 		if err != nil {
 			return err
 		}
 
-		c.ID, err = result.LastInsertId()
 		return err
 	}
 
