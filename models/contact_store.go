@@ -26,7 +26,7 @@ func (s *ContactSQL) Save(c *Contact) error {
 		var result sql.Result
 		var err error
 		if s.DB.DriverName() == "postgres" {
-			result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile) RETURNING", c)
+			result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile) RETURNING id", c)
 		} else {
 			result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile)", c)
 		}
@@ -55,7 +55,7 @@ func (s *ContactSQL) Delete(c *Contact) error {
 }
 
 func (s *ContactSQL) First(c *Contact) error {
-	if err := s.DB.Get(c, "SELECT * FROM contacts WHERE id=? LIMIT 1", c.ID); err != nil {
+	if err := s.DB.Get(c, s.DB.Rebind("SELECT * FROM contacts WHERE id=? LIMIT 1"), c.ID); err != nil {
 		return err
 	}
 	return nil
