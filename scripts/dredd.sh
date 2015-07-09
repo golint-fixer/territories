@@ -5,7 +5,7 @@ then
     npm install -g dredd
 fi
 go build
-./contacts -m &
+./contacts -c configs/test.json &
 sleep 3
 PID=$!
 dredd apiary.apib http://localhost:8080/
