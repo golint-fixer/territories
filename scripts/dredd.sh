@@ -4,7 +4,7 @@ then
     npm update -g npm
     npm install -g dredd
 fi
-go build
+godep go build
 ./contacts -c configs/test.json &
 sleep 3
 PID=$!
