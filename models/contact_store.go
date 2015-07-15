@@ -30,7 +30,7 @@ func (s *ContactSQL) Save(c *Contact) error {
 			result.Scan(&c.ID)
 		} else {
 			var result sql.Result
-			_, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile)", c)
+			result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile)", c)
 			c.ID, err = result.LastInsertId()
 		}
 		if err != nil {
