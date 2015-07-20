@@ -65,7 +65,7 @@ func (s *ContactSQL) First(c *Contact) error {
 
 func (s *ContactSQL) Find() ([]Contact, error) {
 	contacts := make([]Contact, 0)
-	if err := s.DB.Select(&contacts, "SELECT id, firstname, surname FROM contacts ORDER BY surname DESC"); err != nil {
+	if err := s.DB.Select(&contacts, "SELECT id, firstname, surname, phone FROM contacts ORDER BY surname DESC"); err != nil {
 		if err == sql.ErrNoRows {
 			return contacts, nil
 		}
