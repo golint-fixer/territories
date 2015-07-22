@@ -21,7 +21,14 @@ func IsEmail(str string) bool {
 
 // IsURL check if the string is an URL.
 func IsURL(str string) bool {
-	if str == "" || len(str) >= 2083 {
+	if str == "" || len(str) >= 2083 || len(str) <= 3 || strings.HasPrefix(str, ".") {
+		return false
+	}
+	u, err := url.Parse(str)
+	if err != nil {
+		return false
+	}
+	if strings.HasPrefix(u.Host, ".") {
 		return false
 	}
 	return rxURL.MatchString(str)
@@ -531,6 +538,17 @@ func IsSSN(str string) bool {
 	return rxSSN.MatchString(str)
 }
 
+// ByteLength check string's length
+func ByteLength(str string, params ...string) bool {
+	if len(params) == 2 {
+		min, _ := ToInt(params[0])
+		max, _ := ToInt(params[1])
+		return len(str) >= int(min) && len(str) <= int(max)
+	}
+
+	return false
+}
+
 // Contains returns whether checks that a comma-separated list of options
 // contains a particular substr flag. substr must be surrounded by a
 // string boundary or commas.
@@ -552,7 +570,7 @@ func typeCheck(v reflect.Value, t reflect.StructField) (bool, error) {
 	tag := t.Tag.Get(tagName)
 
 	// Check if the field should be ignored
-	if tag == "-" || tag == "" {
+	if tag == "-" {
 		return true, nil
 	}
 
@@ -562,6 +580,12 @@ func typeCheck(v reflect.Value, t reflect.StructField) (bool, error) {
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr,
 		reflect.Float32, reflect.Float64,
 		reflect.String:
+
+		// Check if the field should be ignored
+		if tag == "" {
+			return true, nil
+		}
+
 		options := parseTag(tag)
 		if options.contains("required") {
 			isNil := v.Interface() == nil
@@ -586,6 +610,33 @@ func typeCheck(v reflect.Value, t reflect.StructField) (bool, error) {
 				err := fmt.Errorf("Unkown Validator %s", tagOpt)
 				return false, Error{t.Name, err}
 			}
+
+			// Check for param validators
+			for key, value := range ParamTagRegexMap {
+				ps := value.FindStringSubmatch(tagOpt)
+				if len(ps) > 0 {
+					if validatefunc, ok := ParamTagMap[key]; ok {
+						switch v.Kind() {
+						case reflect.String:
+							field := fmt.Sprint(v) // make value into string, then validate with regex
+							if result := validatefunc(field, ps[1:]...); !result && !negate || result && negate {
+								var err error
+								if !negate {
+									err = fmt.Errorf("%s does not validate as %s", field, tagOpt)
+								} else {
+									err = fmt.Errorf("%s does validate as %s", field, tagOpt)
+								}
+								return false, Error{t.Name, err}
+							}
+						default:
+							//Not Yet Supported Types (Fail here!)
+							err := fmt.Errorf("Validator %s doesn't supported Kind %s", tagOpt, v.Kind())
+							return false, Error{t.Name, err}
+						}
+					}
+				}
+			}
+
 			if validatefunc, ok := TagMap[tagOpt]; ok {
 				switch v.Kind() {
 				case reflect.String:
@@ -700,6 +751,25 @@ func isEmptyValue(v reflect.Value) bool {
 	}
 
 	return reflect.DeepEqual(v.Interface(), reflect.Zero(v.Type()).Interface())
+}
+
+// ErrorByField returns error for specified field of the struct
+// validated by ValidateStruct or empty string
+// if there are no errors/this field doesn't exists or hasn't errors
+func ErrorByField(e error, field string) string {
+	if e == nil {
+		return ""
+	}
+	// prototype for ValidateStruct
+	errorStr := e.Error()
+	errorList := strings.Split(errorStr, ";")
+	for _, item := range errorList {
+		if strings.HasPrefix(item, field+": ") {
+			item := strings.TrimPrefix(item, field+": ")
+			return item
+		}
+	}
+	return ""
 }
 
 // Error returns string equivalent for reflect.Type

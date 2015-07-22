@@ -110,6 +110,14 @@ func (scope *Scope) HasError() bool {
 	return scope.db.Error != nil
 }
 
+func (scope *Scope) PrimaryFields() []*Field {
+	var fields = []*Field{}
+	for _, field := range scope.GetModelStruct().PrimaryFields {
+		fields = append(fields, scope.Fields()[field.DBName])
+	}
+	return fields
+}
+
 func (scope *Scope) PrimaryField() *Field {
 	if primaryFields := scope.GetModelStruct().PrimaryFields; len(primaryFields) > 0 {
 		if len(primaryFields) > 1 {
@@ -251,7 +259,7 @@ func (scope *Scope) TableName() string {
 		return tabler.TableName(scope.db)
 	}
 
-	return scope.GetModelStruct().TableName(scope.db)
+	return scope.GetModelStruct().TableName(scope.db.Model(scope.Value))
 }
 
 func (scope *Scope) QuotedTableName() (name string) {
@@ -292,7 +300,7 @@ func (scope *Scope) Exec() *Scope {
 
 	if !scope.HasError() {
 		if result, err := scope.SqlDB().Exec(scope.Sql, scope.SqlVars...); scope.Err(err) == nil {
-			if count, err := result.RowsAffected(); err == nil {
+			if count, err := result.RowsAffected(); scope.Err(err) == nil {
 				scope.db.RowsAffected = count
 			}
 		}

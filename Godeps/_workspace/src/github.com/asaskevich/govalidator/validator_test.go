@@ -573,6 +573,7 @@ func TestIsURL(t *testing.T) {
 		{"http://foobar.org/", true},
 		{"http://foobar.org:8080/", true},
 		{"ftp://foobar.ru/", true},
+		{"ftp.foo.bar", true},
 		{"http://user:pass@www.foobar.com/", true},
 		{"http://user:pass@www.foobar.com/path/file", true},
 		{"http://127.0.0.1/", true},
@@ -581,12 +582,15 @@ func TestIsURL(t *testing.T) {
 		{"http://foobar.com/?foo=bar#baz=qux", true},
 		{"http://foobar.com?foo=bar", true},
 		{"http://www.xn--froschgrn-x9a.net/", true},
+		{"http://foobar.com/a-", true},
+		{"http://foobar.پاکستان/", true},
+		{"http://foobar.c_o_m", false},
 		{"", false},
 		{"xyz://foobar.com", false},
 		{"invalid.", false},
 		{".com", false},
 		{"rtmp://foobar.com", false},
-		{"http://www.foo_bar.com/", true},
+		{"http://www.foo_bar.com/", false},
 		{"http://localhost:3000/", true},
 		{"http://foobar.com#baz=qux", true},
 		{"http://foobar.com/t$-_.+!*\\'(),", true},
@@ -598,6 +602,21 @@ func TestIsURL(t *testing.T) {
 		{"irc://#channel@network", true},
 		{"/abs/test/dir", false},
 		{"./rel/test/dir", false},
+		{"http://foo^bar.org", false},
+		{"http://foo&*bar.org", false},
+		{"http://foo&bar.org", false},
+		{"http://foo bar.org", false},
+		{"http://foo.bar.org", true},
+		{"http://www.foo.bar.org", true},
+		{"http://www.foo.co.uk", true},
+		{"foo", false},
+		{"http://.foo.com", false},
+		{"http://,foo.com", false},
+		{",foo.com", false},
+		// according to issues #62 #66
+		{"https://pbs.twimg.com/profile_images/560826135676588032/j8fWrmYY_normal.jpeg", true},
+		{"http://me.example.com", true},
+		{"http://www.me.example.com", true},
 	}
 	for _, test := range tests {
 		actual := IsURL(test.param)
@@ -1551,6 +1570,28 @@ func TestIsMongoID(t *testing.T) {
 	}
 }
 
+func TestByteLegnth(t *testing.T) {
+	t.Parallel()
+
+	var tests = []struct {
+		value    string
+		min      string
+		max      string
+		expected bool
+	}{
+		{"123456", "0", "100", true},
+		{"1239999", "0", "0", false},
+		{"1239asdfasf99", "100", "200", false},
+		{"1239999asdff29", "10", "30", true},
+	}
+	for _, test := range tests {
+		actual := ByteLength(test.value, test.min, test.max)
+		if actual != test.expected {
+			t.Errorf("Expected ByteLength(%s, %s, %s) to be %v, got %v", test.value, test.min, test.max, test.expected, actual)
+		}
+	}
+}
+
 type Address struct {
 	Street string `valid:"-"`
 	Zip    string `json:"zip" valid:"numeric,required"`
@@ -1589,6 +1630,16 @@ type NegationStruct struct {
 	Int    string `valid:"int"`
 }
 
+type LengthStruct struct {
+	Length string `valid:"length(10|20)"`
+}
+
+type Post struct {
+	Title    string `valid:"alpha,required"`
+	Message  string `valid:"ascii"`
+	AuthorIP string `valid:"ipv4"`
+}
+
 func TestValidateNegationStruct(t *testing.T) {
 	var tests = []struct {
 		param    NegationStruct
@@ -1603,6 +1654,27 @@ func TestValidateNegationStruct(t *testing.T) {
 		{NegationStruct{"11", "a1"}, false},
 		{NegationStruct{"11", "11"}, false},
 	}
+	for _, test := range tests {
+		actual, err := ValidateStruct(test.param)
+		if actual != test.expected {
+			t.Errorf("Expected ValidateStruct(%q) to be %v, got %v", test.param, test.expected, actual)
+			if err != nil {
+				t.Errorf("Got Error on ValidateStruct(%q): %s", test.param, err)
+			}
+		}
+	}
+}
+
+func TestLengthStruct(t *testing.T) {
+	var tests = []struct {
+		param    interface{}
+		expected bool
+	}{
+		{LengthStruct{"11111"}, false},
+		{LengthStruct{"11111111111111111110000000000000000"}, false},
+		{LengthStruct{"11dfffdf0099"}, true},
+	}
+
 	for _, test := range tests {
 		actual, err := ValidateStruct(test.param)
 		if actual != test.expected {
@@ -1649,6 +1721,30 @@ func TestValidateStruct(t *testing.T) {
 		t.Log("Case ", 6, ": expected ", true, " when result is ", result)
 		t.Error(err)
 		t.FailNow()
+	}
+}
+
+func TestErrorByField(t *testing.T) {
+	t.Parallel()
+
+	var tests = []struct {
+		param    string
+		expected string
+	}{
+		{"message", ""},
+		{"Message", ""},
+		{"title", ""},
+		{"Title", "My123 does not validate as alpha"},
+		{"AuthorIP", "123 does not validate as ipv4"},
+	}
+	post := &Post{"My123", "duck13126", "123"}
+	_, err := ValidateStruct(post)
+
+	for _, test := range tests {
+		actual := ErrorByField(err, test.param)
+		if actual != test.expected {
+			t.Errorf("Expected ErrorByField(%q) to be %v, got %v", test.param, test.expected, actual)
+		}
 	}
 }
 

@@ -8,9 +8,9 @@ import (
 
 	"github.com/quorumsco/contacts/models"
 	"github.com/quorumsco/contacts/views"
+	. "github.com/quorumsco/jsonapi"
 	"github.com/quorumsco/logs"
 	"github.com/quorumsco/router"
-	. "github.com/quroumsco/jsonapi"
 )
 
 func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
