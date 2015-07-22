@@ -6,14 +6,14 @@ import (
 	"runtime"
 
 	"github.com/codegangsta/cli"
-	"github.com/iogo-framework/application"
-	"github.com/iogo-framework/cmd"
-	"github.com/iogo-framework/databases"
-	"github.com/iogo-framework/logs"
-	"github.com/iogo-framework/router"
-	"github.com/iogo-framework/settings"
+	"github.com/quorumsco/application"
+	"github.com/quorumsco/cmd"
 	"github.com/quorumsco/contacts/controllers"
 	"github.com/quorumsco/contacts/models"
+	"github.com/quorumsco/databases"
+	"github.com/quorumsco/logs"
+	"github.com/quorumsco/router"
+	"github.com/quorumsco/settings"
 )
 
 func init() {

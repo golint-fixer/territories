@@ -3,9 +3,9 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/iogo-framework/application"
-	"github.com/iogo-framework/router"
 	"github.com/jmoiron/sqlx"
+	"github.com/quorumsco/application"
+	"github.com/quorumsco/router"
 )
 
 func getDB(r *http.Request) *sqlx.DB {

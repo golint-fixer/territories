@@ -6,12 +6,11 @@ import (
 	"net/http"
 	"strconv"
 
-	. "github.com/iogo-framework/jsonapi"
-	"github.com/iogo-framework/router"
 	"github.com/quorumsco/contacts/models"
 	"github.com/quorumsco/contacts/views"
-
-	"github.com/iogo-framework/logs"
+	"github.com/quorumsco/logs"
+	"github.com/quorumsco/router"
+	. "github.com/quroumsco/jsonapi"
 )
 
 func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
