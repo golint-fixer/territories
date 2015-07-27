@@ -41,6 +41,7 @@ func RetrieveContact(w http.ResponseWriter, req *http.Request) {
 	var c = models.Contact{
 		ID: uint(id),
 	}
+
 	err = contactStore.First(&c)
 	if err != nil {
 		if err == sql.ErrNoRows {

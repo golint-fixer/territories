@@ -1,7 +1,7 @@
 package models
 
 import (
-	"database/sql"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 )
@@ -32,17 +32,17 @@ type Address struct {
 }
 
 type Contact struct {
-	ID          uint           `json:"id"`
-	Firstname   string         `sql:"not null" json:"firstname"`
-	Surname     string         `sql:"not null" json:"surname"`
-	MarriedName sql.NullString `db:"married_name" json:"married_name,omitempty"`
-	Gender      sql.NullString `json:"gender,omitempty"`
-	Birthdate   NullTime       `json:"birthdate,omitempty"`
-	Mail        sql.NullString `json:"mail,omitempty"`
-	Phone       sql.NullString `json:"phone,omitempty"`
-	Mobile      sql.NullString `json:"mobile,omitempty"`
+	ID          uint       `json:"id"`
+	Firstname   string     `sql:"not null" json:"firstname"`
+	Surname     string     `sql:"not null" json:"surname"`
+	MarriedName *string    `db:"married_name" json:"married_name,omitempty"`
+	Gender      *string    `json:"gender,omitempty"`
+	Birthdate   *time.Time `json:"birthdate,omitempty"`
+	Mail        *string    `json:"mail,omitempty"`
+	Phone       *string    `json:"phone,omitempty"`
+	Mobile      *string    `json:"mobile,omitempty"`
 
-	UserID uint
+	UserID uint `sql:"not null" db:"user_id" json:"-"`
 
 	Address *Address `json:"address,omitempty"`
 	Notes   []Note   `json:"notes,omitempty"`
@@ -57,7 +57,7 @@ func (c *Contact) Validate() map[string]string {
 	if c.Surname == "" {
 		errs["surname"] = "is required"
 	}
-	if c.Mail.Valid && !govalidator.IsEmail(c.Mail.String) {
+	if c.Mail != nil && !govalidator.IsEmail(*c.Mail) {
 		errs["mail"] = "is not valid"
 	}
 	return errs

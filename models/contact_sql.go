@@ -48,7 +48,7 @@ func (s *ContactSQL) Delete(c *Contact) error {
 }
 
 func (s *ContactSQL) First(c *Contact) error {
-	if err := s.DB.Get(c, s.DB.Rebind("SELECT * FROM contacts WHERE id=? LIMIT 1"), c.ID); err != nil {
+	if err := s.DB.Get(c, s.DB.Rebind("SELECT id, firstname, surname, phone FROM contacts WHERE id=? LIMIT 1"), c.ID); err != nil {
 		return err
 	}
 	return nil
