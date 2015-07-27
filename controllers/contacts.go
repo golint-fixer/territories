@@ -15,9 +15,9 @@ import (
 
 func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
 	db := getDB(req)
-	store := models.ContactStore(db)
+	contactStore := models.ContactStore(db)
 
-	contacts, err := store.Find()
+	contacts, err := contactStore.Find()
 	if err != nil {
 		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
@@ -27,9 +27,9 @@ func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
 	Success(w, req, views.Contacts{Contacts: contacts}, http.StatusOK)
 }
 
-func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
+func RetrieveContact(w http.ResponseWriter, req *http.Request) {
 	db := getDB(req)
-	store := models.ContactStore(db)
+	contactStore := models.ContactStore(db)
 
 	id, err := strconv.Atoi(router.Context(req).Param("id"))
 	if err != nil {
@@ -39,10 +39,9 @@ func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
 	}
 
 	var c = models.Contact{
-		ID: int64(id),
+		ID: uint(id),
 	}
-	err = store.First(&c)
-	fmt.Println(&c)
+	err = contactStore.First(&c)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			Success(w, req, nil, http.StatusNotFound)
@@ -57,11 +56,11 @@ func RetrieveContactByID(w http.ResponseWriter, req *http.Request) {
 	Success(w, req, views.Contact{Contact: &c}, http.StatusOK)
 }
 
-func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
+func UpdateContact(w http.ResponseWriter, req *http.Request) {
 	db := getDB(req)
-	store := models.ContactStore(db)
+	contactStore := models.ContactStore(db)
 
-	id, err := strconv.Atoi(router.Context(req).Param("id"))
+	contactID, err := strconv.Atoi(router.Context(req).Param("id"))
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
@@ -69,8 +68,8 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 	}
 
 	var c = new(models.Contact)
-	c.ID = int64(id)
-	err = store.First(c)
+	c.ID = uint(contactID)
+	err = contactStore.First(c)
 	if err != nil {
 		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
@@ -83,7 +82,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	c.ID = int64(id)
+	c.ID = uint(contactID)
 
 	errs := c.Validate()
 	if len(errs) > 0 {
@@ -93,7 +92,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = store.Save(c)
+	err = contactStore.Save(c)
 	if err != nil {
 		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
@@ -106,7 +105,7 @@ func UpdateContactByID(w http.ResponseWriter, req *http.Request) {
 
 func CreateContact(w http.ResponseWriter, req *http.Request) {
 	db := getDB(req)
-	store := models.ContactStore(db)
+	contactStore := models.ContactStore(db)
 
 	var c = new(models.Contact)
 	err := Request(&views.Contact{Contact: c}, req)
@@ -124,7 +123,7 @@ func CreateContact(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = store.Save(c)
+	err = contactStore.Save(c)
 	if err != nil {
 		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
@@ -148,11 +147,11 @@ func ContactOptions(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,access-control-allow-methods,content-type")
 }
 
-func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
+func DeleteContact(w http.ResponseWriter, req *http.Request) {
 	db := getDB(req)
-	store := models.ContactStore(db)
+	contactStore := models.ContactStore(db)
 
-	id, err := strconv.Atoi(router.Context(req).Param("id"))
+	contactID, err := strconv.Atoi(router.Context(req).Param("id"))
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
@@ -160,8 +159,8 @@ func DeleteContactByID(w http.ResponseWriter, req *http.Request) {
 	}
 
 	var c = new(models.Contact)
-	c.ID = int64(id)
-	err = store.Delete(c)
+	c.ID = uint(contactID)
+	err = contactStore.Delete(c)
 	if err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)

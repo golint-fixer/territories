@@ -84,10 +84,16 @@ func serve(ctx *cli.Context) error {
 	app.Options("/contacts", controllers.ContactCollectionOptions) // Required for CORS
 	app.Get("/contacts", controllers.RetrieveContactCollection)
 
-	app.Get("/contacts/:id", controllers.RetrieveContactByID)
-	app.Patch("/contacts/:id", controllers.UpdateContactByID)
+	app.Get("/contacts/:id", controllers.RetrieveContact)
+	app.Patch("/contacts/:id", controllers.UpdateContact)
 	app.Options("/contacts/:id", controllers.ContactOptions) // Required for CORS
-	app.Delete("/contacts/:id", controllers.DeleteContactByID)
+	app.Delete("/contacts/:id", controllers.DeleteContact)
+
+	// app.Post("/contacts/:id/notes", controllers.CreateNote)
+	app.Get("/contacts/:id/notes", controllers.RetrieveNotesByContact)
+	app.Delete("/contacts/:id/note/:node_id", controllers.DeleteNote)
+
+	// app.Get("/contacts/:id/tags", controllers.RetrieveTagsByContact)
 
 	server, err := config.Server()
 	if err != nil {

@@ -8,12 +8,6 @@ import (
 
 func Models() []interface{} {
 	return []interface{}{
-		&Contact{}, &Address{},
-	}
-}
-
-func Stores() []interface{} {
-	return []interface{}{
-		ContactSQL{},
+		&Contact{}, &Note{}, &Tag{},
 	}
 }
