@@ -11,8 +11,10 @@ type ContactSQL struct {
 }
 
 func (s *ContactSQL) Save(c *Contact) error {
+	var err error
+
+	// We need to create a new record
 	if c.ID == 0 {
-		var err error
 		if s.DB.DriverName() == "postgres" {
 			var result *sqlx.Rows
 			result, err = s.DB.Queryx("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile) RETURNING id", c)
@@ -24,34 +26,24 @@ func (s *ContactSQL) Save(c *Contact) error {
 			id, err = result.LastInsertId()
 			c.ID = uint(id)
 		}
-		if err != nil {
-			return err
-		}
 
 		return err
 	}
 
-	_, err := s.DB.NamedExec("UPDATE contacts SET firstname=:firstname, surname=:surname, married_name=:married_name, gender=:gender, birthdate=:birthdate, mail=:mail, phone=:phone, mobile=:mobile WHERE id=:id", c)
-	if err != nil {
-		return err
-	}
+	// We need to update the record
+	_, err = s.DB.NamedExec("UPDATE contacts SET firstname=:firstname, surname=:surname, married_name=:married_name, gender=:gender, birthdate=:birthdate, mail=:mail, phone=:phone, mobile=:mobile WHERE id=:id", c)
 
-	return nil
+	return err
 }
 
 func (s *ContactSQL) Delete(c *Contact) error {
 	_, err := s.DB.NamedExec("DELETE FROM contacts WHERE id=:id", c)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (s *ContactSQL) First(c *Contact) error {
-	if err := s.DB.Get(c, s.DB.Rebind("SELECT id, firstname, surname, phone FROM contacts WHERE id=? LIMIT 1"), c.ID); err != nil {
-		return err
-	}
-	return nil
+	err := s.DB.Get(c, s.DB.Rebind("SELECT id, firstname, surname, phone FROM contacts WHERE id=? LIMIT 1"), c.ID)
+	return err
 }
 
 func (s *ContactSQL) Find() ([]Contact, error) {

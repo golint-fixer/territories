@@ -14,9 +14,10 @@ import (
 )
 
 func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
-	db := getDB(req)
-	contactStore := models.ContactStore(db)
-
+	var (
+		db           = getDB(req)
+		contactStore = models.ContactStore(db)
+	)
 	contacts, err := contactStore.Find()
 	if err != nil {
 		logs.Error(err)
@@ -28,8 +29,6 @@ func RetrieveContactCollection(w http.ResponseWriter, req *http.Request) {
 }
 
 func RetrieveContact(w http.ResponseWriter, req *http.Request) {
-	db := getDB(req)
-	contactStore := models.ContactStore(db)
 
 	id, err := strconv.Atoi(router.Context(req).Param("id"))
 	if err != nil {
@@ -38,12 +37,12 @@ func RetrieveContact(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	var c = models.Contact{
-		ID: uint(id),
-	}
-
-	err = contactStore.First(&c)
-	if err != nil {
+	var (
+		c            = models.Contact{ID: uint(id)}
+		db           = getDB(req)
+		contactStore = models.ContactStore(db)
+	)
+	if err = contactStore.First(&c); err != nil {
 		if err == sql.ErrNoRows {
 			Success(w, req, nil, http.StatusNotFound)
 			return
@@ -53,64 +52,60 @@ func RetrieveContact(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	Success(w, req, views.Contact{Contact: &c}, http.StatusOK)
 }
 
 func UpdateContact(w http.ResponseWriter, req *http.Request) {
-	db := getDB(req)
-	contactStore := models.ContactStore(db)
-
-	contactID, err := strconv.Atoi(router.Context(req).Param("id"))
-	if err != nil {
+	var (
+		contactID int
+		err       error
+	)
+	if contactID, err = strconv.Atoi(router.Context(req).Param("id")); err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
 
-	var c = new(models.Contact)
-	c.ID = uint(contactID)
-	err = contactStore.First(c)
-	if err != nil {
+	var (
+		db           = getDB(req)
+		contactStore = models.ContactStore(db)
+		c            = &models.Contact{ID: uint(contactID)}
+	)
+	if err = contactStore.First(c); err != nil {
 		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
 	}
 
-	err = Request(&views.Contact{Contact: c}, req)
-	if err != nil {
+	if err = Request(&views.Contact{Contact: c}, req); err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
 	}
-
 	c.ID = uint(contactID)
 
-	errs := c.Validate()
+	var errs = c.Validate()
 	if len(errs) > 0 {
 		logs.Debug(errs)
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		Fail(w, req, map[string]interface{}{"contact": errs}, http.StatusBadRequest)
 		return
 	}
 
-	err = contactStore.Save(c)
-	if err != nil {
+	if err = contactStore.Save(c); err != nil {
 		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	Success(w, req, views.Contact{Contact: c}, http.StatusOK)
 }
 
 func CreateContact(w http.ResponseWriter, req *http.Request) {
-	db := getDB(req)
-	contactStore := models.ContactStore(db)
+	var (
+		c = new(models.Contact)
 
-	var c = new(models.Contact)
-	err := Request(&views.Contact{Contact: c}, req)
-	if err != nil {
+		err error
+	)
+	if err := Request(&views.Contact{Contact: c}, req); err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
@@ -119,20 +114,21 @@ func CreateContact(w http.ResponseWriter, req *http.Request) {
 	errs := c.Validate()
 	if len(errs) > 0 {
 		logs.Debug(errs)
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		Fail(w, req, map[string]interface{}{"contact": errs}, http.StatusBadRequest)
 		return
 	}
 
-	err = contactStore.Save(c)
-	if err != nil {
+	var (
+		db           = getDB(req)
+		contactStore = models.ContactStore(db)
+	)
+	if err = contactStore.Save(c); err != nil {
 		logs.Error(err)
 		Error(w, req, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Location", fmt.Sprintf("/%s/%d", "contacts", c.ID))
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	Success(w, req, views.Contact{Contact: c}, http.StatusCreated)
 }
 
@@ -149,24 +145,27 @@ func ContactOptions(w http.ResponseWriter, req *http.Request) {
 }
 
 func DeleteContact(w http.ResponseWriter, req *http.Request) {
-	db := getDB(req)
-	contactStore := models.ContactStore(db)
-
-	contactID, err := strconv.Atoi(router.Context(req).Param("id"))
-	if err != nil {
+	var (
+		contactID int
+		err       error
+	)
+	if contactID, err = strconv.Atoi(router.Context(req).Param("id")); err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
 
-	var c = new(models.Contact)
-	c.ID = uint(contactID)
-	err = contactStore.Delete(c)
-	if err != nil {
+	var (
+		db           = getDB(req)
+		contactStore = models.ContactStore(db)
+		c            = &models.Contact{ID: uint(contactID)}
+	)
+	if err = contactStore.Delete(c); err != nil {
 		logs.Debug(err)
 		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
+
 	w.Header().Set("Content-Type", "text/plain")
 	Success(w, req, nil, http.StatusNoContent)
 }

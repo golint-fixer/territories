@@ -34,10 +34,10 @@ func main() {
 }
 
 func serve(ctx *cli.Context) error {
-	var app *application.Application
-	var err error
-
-	var config settings.Config
+	var (
+		config settings.Config
+		err    error
+	)
 	if ctx.String("config") != "" {
 		config, err = settings.Parse(ctx.String("config"))
 		if err != nil {
@@ -56,7 +56,7 @@ func serve(ctx *cli.Context) error {
 	}
 	logs.Debug("database type: %s", dialect)
 
-	app = application.New()
+	var app = application.New()
 	if app.Components["DB"], err = databases.InitSQLX(dialect, args); err != nil {
 		logs.Critical(err)
 		os.Exit(1)
@@ -64,7 +64,7 @@ func serve(ctx *cli.Context) error {
 	logs.Debug("connected to %s", args)
 
 	if config.Migrate() {
-		if err := migrate(dialect, args); err != nil {
+		if err = migrate(dialect, args); err != nil {
 			logs.Critical(err)
 			os.Exit(1)
 		}
@@ -89,15 +89,16 @@ func serve(ctx *cli.Context) error {
 	app.Options("/contacts/:id", controllers.ContactOptions) // Required for CORS
 	app.Delete("/contacts/:id", controllers.DeleteContact)
 
-	// app.Post("/contacts/:id/notes", controllers.CreateNote)
-	// app.Get("/contacts/:id/notes", controllers.RetrieveNoteCollection)
+	app.Post("/contacts/:id/notes", controllers.CreateNote)
+	app.Get("/contacts/:id/notes", controllers.RetrieveNoteCollection)
 
 	// app.Get("/contacts/:id/notes/:node_id", controllers.RetrieveNote)
 	app.Delete("/contacts/:id/notes/:node_id", controllers.DeleteNote)
 
 	// app.Get("/contacts/:id/tags", controllers.RetrieveTagsByContact)
 
-	server, err := config.Server()
+	var server settings.Server
+	server, err = config.Server()
 	if err != nil {
 		logs.Critical(err)
 		os.Exit(1)
@@ -115,7 +116,7 @@ func cors(h http.Handler) http.Handler {
 }
 
 func migrate(dialect string, args string) error {
-	db, err := databases.InitGORM(dialect, args)
+	var db, err = databases.InitGORM(dialect, args)
 	if err != nil {
 		return err
 	}

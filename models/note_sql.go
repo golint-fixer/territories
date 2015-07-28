@@ -11,8 +11,9 @@ type NoteSQL struct {
 }
 
 func (s *NoteSQL) Save(n *Note) error {
+	var err error
+
 	if n.ID == 0 {
-		var err error
 		if s.DB.DriverName() == "postgres" {
 			var result *sqlx.Rows
 			result, err = s.DB.NamedQuery("INSERT INTO notes (content, date, user_id) VALUES (:content, :date, :user_id) RETURNING id", n)
@@ -24,27 +25,18 @@ func (s *NoteSQL) Save(n *Note) error {
 			id, err = result.LastInsertId()
 			n.ID = uint(id)
 		}
-		if err != nil {
-			return err
-		}
 
 		return err
 	}
 
-	_, err := s.DB.NamedExec("UPDATE notes SET content=:content, date=:date, user_id=:user_id WHERE id=:id", n)
-	if err != nil {
-		return err
-	}
+	_, err = s.DB.NamedExec("UPDATE notes SET content=:content, date=:date, user_id=:user_id WHERE id=:id", n)
 
-	return nil
+	return err
 }
 
 func (s *NoteSQL) Delete(n *Note) error {
 	_, err := s.DB.NamedExec("DELETE FROM notes WHERE id=:id", n)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (s *NoteSQL) FindByContact(contact Contact) ([]Note, error) {

@@ -51,14 +51,18 @@ type Contact struct {
 
 func (c *Contact) Validate() map[string]string {
 	var errs = make(map[string]string)
+
 	if c.Firstname == "" {
 		errs["firstname"] = "is required"
 	}
+
 	if c.Surname == "" {
 		errs["surname"] = "is required"
 	}
+
 	if c.Mail != nil && !govalidator.IsEmail(*c.Mail) {
 		errs["mail"] = "is not valid"
 	}
+
 	return errs
 }
