@@ -12,7 +12,6 @@ type ContactSQL struct {
 
 func (s *ContactSQL) Save(c *Contact) error {
 	var err error
-
 	// We need to create a new record
 	if c.ID == 0 {
 		if s.DB.DriverName() == "postgres" {
@@ -26,7 +25,6 @@ func (s *ContactSQL) Save(c *Contact) error {
 			id, err = result.LastInsertId()
 			c.ID = uint(id)
 		}
-
 		return err
 	}
 
@@ -47,20 +45,18 @@ func (s *ContactSQL) First(c *Contact) error {
 }
 
 func (s *ContactSQL) Find() ([]Contact, error) {
-	var contacts = make([]Contact, 0)
-	if err := s.DB.Select(&contacts, "SELECT id, firstname, surname, phone FROM contacts ORDER BY surname DESC"); err != nil {
-		if err == sql.ErrNoRows {
-			return contacts, nil
-		}
-		return nil, err
+	var contacts []Contact
+	err := s.DB.Select(&contacts, "SELECT id, firstname, surname, phone FROM contacts ORDER BY surname DESC")
+	if err == sql.ErrNoRows {
+		return contacts, nil
 	}
-	return contacts, nil
+	return contacts, err
 }
 
 func (s *ContactSQL) FindNotes(c *Contact) error {
+	var noteStore = NoteStore(s.DB)
 	var err error
 
-	noteStore := NoteStore(s.DB)
 	c.Notes, err = noteStore.FindByContact(*c)
 
 	return err
