@@ -16,11 +16,15 @@ func (s *ContactSQL) Save(c *Contact) error {
 	if c.ID == 0 {
 		if s.DB.DriverName() == "postgres" {
 			var result *sqlx.Rows
-			result, err = s.DB.Queryx("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile) RETURNING id", c)
+			if result, err = s.DB.Queryx("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile) RETURNING id", c); err != nil {
+				return err
+			}
 			result.Scan(&c.ID)
 		} else {
 			var result sql.Result
-			result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile)", c)
+			if result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile)", c); err != nil {
+				return err
+			}
 			var id int64
 			id, err = result.LastInsertId()
 			c.ID = uint(id)
@@ -47,8 +51,8 @@ func (s *ContactSQL) First(c *Contact) error {
 func (s *ContactSQL) Find() ([]Contact, error) {
 	var contacts []Contact
 	err := s.DB.Select(&contacts, "SELECT id, firstname, surname, phone FROM contacts ORDER BY surname DESC")
-	if err == sql.ErrNoRows {
-		return contacts, nil
+	if err == sql.ErrNoRows || contacts == nil {
+		return make([]Contact, 0), nil
 	}
 	return contacts, err
 }

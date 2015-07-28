@@ -39,8 +39,8 @@ func (s *NoteSQL) Delete(n *Note) error {
 func (s *NoteSQL) FindByContact(contact Contact) ([]Note, error) {
 	var notes []Note
 	var err = s.DB.Select(&notes, "SELECT id, content, date FROM notes WHERE contact_id=? ORDER BY date DESC", contact.ID)
-	if err == sql.ErrNoRows {
-		return notes, nil
+	if err == sql.ErrNoRows || notes == nil {
+		return make([]Note, 0), nil
 	}
 	return notes, err
 }

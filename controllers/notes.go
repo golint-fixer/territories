@@ -68,35 +68,35 @@ func CreateNote(w http.ResponseWriter, r *http.Request) {
 	Success(w, r, views.Note{Note: n}, http.StatusCreated)
 }
 
-func DeleteNote(w http.ResponseWriter, req *http.Request) {
+func DeleteNote(w http.ResponseWriter, r *http.Request) {
 	var (
 		contactID int
 		err       error
 	)
-	if contactID, err = strconv.Atoi(router.Context(req).Param("id")); err != nil {
+	if contactID, err = strconv.Atoi(router.Context(r).Param("id")); err != nil {
 		logs.Debug(err)
-		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
+		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
 
 	var noteID int
-	if noteID, err = strconv.Atoi(router.Context(req).Param("note_id")); err != nil {
+	if noteID, err = strconv.Atoi(router.Context(r).Param("note_id")); err != nil {
 		logs.Debug(err)
-		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
+		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
 
 	var (
-		db        = getDB(req)
+		db        = getDB(r)
 		noteStore = models.NoteStore(db)
 		n         = &models.Note{ID: uint(noteID), ContactID: uint(contactID)}
 	)
 	if err = noteStore.Delete(n); err != nil {
 		logs.Debug(err)
-		Fail(w, req, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
+		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
-	Success(w, req, nil, http.StatusNoContent)
+	Success(w, r, nil, http.StatusNoContent)
 }
