@@ -10,5 +10,9 @@ import (
 
 func getDB(r *http.Request) *sqlx.DB {
 	return router.Context(r).Env["Application"].(*application.Application).Components["DB"].(*sqlx.DB)
-	//Laisser dispo le uid recup entier
 }
+
+func getUID(r *http.Request) *sqlx.DB {
+	return router.Context(r).Env["UserID"].(uint)
+}
+//get gorm

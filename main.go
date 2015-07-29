@@ -62,6 +62,10 @@ func serve(ctx *cli.Context) error {
 		logs.Critical(err)
 		os.Exit(1)
 	}
+
+	//init gorm ici
+
+
 	logs.Debug("connected to %s", args)
 
 	if config.Migrate() {
@@ -80,6 +84,7 @@ func serve(ctx *cli.Context) error {
 
 	app.Use(app.Apply)
 	app.Use(cors)
+	app.use(getUID)
 
 	app.Post("/contacts", controllers.CreateContact)
 	app.Options("/contacts", controllers.ContactCollectionOptions) // Required for CORS
@@ -111,6 +116,24 @@ func cors(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,content-type")
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
+func getUID(h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		var(
+			userID 	uint
+			err 	error
+		)
+		userID, err = strconv.Atoi(query.Get("user_id"))
+		if err != nil {
+			logs.Debug(err)
+			Error(w, r, err.Error(), http.StatusBadRequest)
+			return
+		}
+		router.Context(r).Env["UserID"] = userID
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
