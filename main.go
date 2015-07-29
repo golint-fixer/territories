@@ -88,7 +88,7 @@ func serve(ctx *cli.Context) error {
 	app.Get("/contacts/:id", controllers.RetrieveContact)
 	app.Patch("/contacts/:id", controllers.UpdateContact)
 	app.Options("/contacts/:id", controllers.ContactOptions) // Required for CORS
-	app.Delete("/contacts/:id", controllers.DeleteContact) // Required for CORS
+	app.Delete("/contacts/:id", controllers.DeleteContact)   // Required for CORS
 
 	app.Post("/contacts/:id/notes", controllers.CreateNote)
 	app.Get("/contacts/:id/notes", controllers.RetrieveNoteCollection)

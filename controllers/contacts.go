@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -13,27 +14,31 @@ import (
 	"github.com/quorumsco/router"
 )
 
+const (
+	ErrMissingUserID = errors.New("missing")
+)
+
 func RetrieveContactCollection(w http.ResponseWriter, r *http.Request) {
 	var (
-		db           = getDB(r)
-		contactStore = models.ContactStore(db)
+		query = r.URL.Query()
 
-		err 	 error
-		contacts []models.Contact
+		err error
 	)
-	res := r.URL.Query()
-	if len(res) == 0 || len(r.URL.Query()["id"]) == 0{
-		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"User_ID": "unknown"}, http.StatusBadRequest)
-		return
-	}
-	User_ID, err := strconv.Atoi(r.URL.Query()["id"][0])
+
+	var userID int
+	userID, err = strconv.Atoi(query.Get("user_id"))
 	if err != nil {
 		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"User_ID": "unknown"}, http.StatusBadRequest)
+		Error(w, r, err.Error(), http.StatusBadRequest)
 		return
 	}
-	if contacts, err = contactStore.Find(User_ID); err != nil {
+
+	var (
+		contacts     []models.Contact
+		db           = getDB(r)
+		contactStore = models.ContactStore(db)
+	)
+	if contacts, err = contactStore.Find(uint(userID)); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
