@@ -18,10 +18,22 @@ func RetrieveContactCollection(w http.ResponseWriter, r *http.Request) {
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 
+		err 	 error
 		contacts []models.Contact
-		err      error
 	)
-	if contacts, err = contactStore.Find(); err != nil {
+	res := r.URL.Query()
+	if len(res) == 0 || len(r.URL.Query()["id"]) == 0{
+		logs.Debug(err)
+		Fail(w, r, map[string]interface{}{"User_ID": "unknown"}, http.StatusBadRequest)
+		return
+	}
+	User_ID, err := strconv.Atoi(r.URL.Query()["id"][0])
+	if err != nil {
+		logs.Debug(err)
+		Fail(w, r, map[string]interface{}{"User_ID": "unknown"}, http.StatusBadRequest)
+		return
+	}
+	if contacts, err = contactStore.Find(User_ID); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return

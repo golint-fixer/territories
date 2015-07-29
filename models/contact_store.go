@@ -6,7 +6,7 @@ type ContactDS interface {
 	Save(*Contact) error
 	Delete(*Contact) error
 	First(*Contact) error
-	Find() ([]Contact, error)
+	Find(int) ([]Contact, error)
 
 	FindNotes(*Contact) error
 }

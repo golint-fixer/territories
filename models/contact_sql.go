@@ -48,9 +48,10 @@ func (s *ContactSQL) First(c *Contact) error {
 	return err
 }
 
-func (s *ContactSQL) Find() ([]Contact, error) {
+func (s *ContactSQL) Find(uid int) ([]Contact, error) {
 	var contacts []Contact
-	err := s.DB.Select(&contacts, "SELECT id, firstname, surname, phone FROM contacts ORDER BY surname DESC")
+	err := s.DB.Select(&contacts, "SELECT id, firstname, surname, phone FROM contacts WHERE User_ID=:? ORDER BY surname DESC", uid)
+	//err := s.DB.Select(&contacts, "SELECT id, firstname, surname, phone FROM contacts ORDER BY surname DESC")
 	if err == sql.ErrNoRows || contacts == nil {
 		return make([]Contact, 0), nil
 	}

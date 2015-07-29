@@ -38,6 +38,7 @@ func serve(ctx *cli.Context) error {
 		config settings.Config
 		err    error
 	)
+
 	if ctx.String("config") != "" {
 		config, err = settings.Parse(ctx.String("config"))
 		if err != nil {
@@ -87,7 +88,7 @@ func serve(ctx *cli.Context) error {
 	app.Get("/contacts/:id", controllers.RetrieveContact)
 	app.Patch("/contacts/:id", controllers.UpdateContact)
 	app.Options("/contacts/:id", controllers.ContactOptions) // Required for CORS
-	app.Delete("/contacts/:id", controllers.DeleteContact)
+	app.Delete("/contacts/:id", controllers.DeleteContact) // Required for CORS
 
 	app.Post("/contacts/:id/notes", controllers.CreateNote)
 	app.Get("/contacts/:id/notes", controllers.RetrieveNoteCollection)
