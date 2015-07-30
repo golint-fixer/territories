@@ -40,10 +40,8 @@ func (s *NoteSQL) Delete(n *Note, userID uint, contactID uint) error {
 	return err
 }
 
-func (s *NoteSQL) FindByContact(contact Contact, userID uint, contactID uint) ([]Note, error) {
+func (s *NoteSQL) FindByContact(contact Contact, userID uint) ([]Note, error) {
 	var notes []Note
-	n.ContactID = contactID
-	n.UserID = userID
 	var err = s.DB.Select(&notes, "SELECT id, content, date FROM notes WHERE contact_id=? AND user_id=?ORDER BY date DESC", contact.ID, userID)
 	if err == sql.ErrNoRows || notes == nil {
 		return make([]Note, 0), nil

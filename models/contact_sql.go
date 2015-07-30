@@ -18,13 +18,13 @@ func (s *ContactSQL) Save(c *Contact, userID uint) error {
 	if c.ID == 0 {
 		if s.DB.DriverName() == "postgres" {
 			var result *sqlx.Rows
-			if result, err = s.DB.Queryx("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile, user_id) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile, :user_id?) RETURNING id", c); err != nil {
+			if result, err = s.DB.Queryx("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile, user_id) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile, :user_id) RETURNING id", c); err != nil {
 				return err
 			}
 			result.Scan(&c.ID)
 		} else {
 			var result sql.Result
-			if result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile, user_id) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile, :user_id?)", c); err != nil {
+			if result, err = s.DB.NamedExec("INSERT INTO contacts (firstname, surname, married_name, gender, birthdate, mail, phone, mobile, user_id) VALUES (:firstname, :surname, :married_name, :gender, :birthdate, :mail, :phone, :mobile, :user_id)", c); err != nil {
 				return err
 			}
 			fmt.Println(c)
@@ -36,7 +36,7 @@ func (s *ContactSQL) Save(c *Contact, userID uint) error {
 	}
 
 	// We need to update the record
-	_, err = s.DB.NamedExec("UPDATE contacts SET firstname=:firstname, surname=:surname, married_name=:married_name, gender=:gender, birthdate=:birthdate, mail=:mail, phone=:phone, mobile=:mobile WHERE id=:id AND user_id=:user_id?", c)
+	_, err = s.DB.NamedExec("UPDATE contacts SET firstname=:firstname, surname=:surname, married_name=:married_name, gender=:gender, birthdate=:birthdate, mail=:mail, phone=:phone, mobile=:mobile WHERE id=:id AND user_id=:user_id", c)
 
 	return err
 }
@@ -60,11 +60,11 @@ func (s *ContactSQL) Find(userID uint) ([]Contact, error) {
 	return contacts, err
 }
 
-func (s *ContactSQL) FindNotes(c *Contact) error {
+func (s *ContactSQL) FindNotes(c *Contact, userID uint) error {
 	var noteStore = NoteStore(s.DB)
 	var err error
 
-	c.Notes, err = noteStore.FindByContact(*c)
+	c.Notes, err = noteStore.FindByContact(*c, userID)
 
 	return err
 }

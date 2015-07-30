@@ -33,7 +33,7 @@ func RetrieveNoteCollection(w http.ResponseWriter, r *http.Request) {
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
-	err = contactStore.FindNotes(&c, userID, uint(contactID))
+	err = contactStore.FindNotes(&c, userID)
 	if err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)

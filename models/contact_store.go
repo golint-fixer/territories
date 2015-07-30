@@ -8,7 +8,7 @@ type ContactDS interface {
 	First(*Contact, uint) error
 	Find(uint) ([]Contact, error)
 
-	FindNotes(*Contact) error
+	FindNotes(*Contact, uint) error
 }
 
 func ContactStore(db *sqlx.DB) ContactDS {
