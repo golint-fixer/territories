@@ -10,7 +10,7 @@ type NoteSQL struct {
 	DB *sqlx.DB
 }
 
-func (s *NoteSQL) Save(n *Note) error {
+func (s *NoteSQL) Save(n *Note, userID uint, contactID uint) error {
 	var err error
 	if n.ID == 0 {
 		if s.DB.DriverName() == "postgres" {
@@ -31,12 +31,12 @@ func (s *NoteSQL) Save(n *Note) error {
 	return err
 }
 
-func (s *NoteSQL) Delete(n *Note) error {
+func (s *NoteSQL) Delete(n *Note, userID uint, contactID uint) error {
 	_, err := s.DB.NamedExec("DELETE FROM notes WHERE id=:id", n)
 	return err
 }
 
-func (s *NoteSQL) FindByContact(contact Contact) ([]Note, error) {
+func (s *NoteSQL) FindByContact(contact Contact, userID uint, contactID uint) ([]Note, error) {
 	var notes []Note
 	var err = s.DB.Select(&notes, "SELECT id, content, date FROM notes WHERE contact_id=? ORDER BY date DESC", contact.ID)
 	if err == sql.ErrNoRows || notes == nil {
