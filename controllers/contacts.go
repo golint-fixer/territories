@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -14,31 +13,15 @@ import (
 	"github.com/quorumsco/router"
 )
 
-const (
-	ErrMissingUserID = errors.New("missing")
-)
-
 func RetrieveContactCollection(w http.ResponseWriter, r *http.Request) {
 	var (
-		query = r.URL.Query()
-
 		err error
-	)
-
-	var userID int
-	userID, err = strconv.Atoi(query.Get("user_id"))
-	if err != nil {
-		logs.Debug(err)
-		Error(w, r, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	var (
 		contacts     []models.Contact
+		userID 		 = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
-	if contacts, err = contactStore.Find(uint(userID)); err != nil {
+	if contacts, err = contactStore.Find(userID); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
@@ -57,10 +40,11 @@ func RetrieveContact(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		c            = models.Contact{ID: uint(id)}
+		userID 		 = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
-	if err = contactStore.First(&c); err != nil {
+	if err = contactStore.First(&c, userID); err != nil {
 		if err == sql.ErrNoRows {
 			Success(w, r, nil, http.StatusNotFound)
 			return
@@ -85,11 +69,12 @@ func UpdateContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
+		userID 		 = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 		c            = &models.Contact{ID: uint(contactID)}
 	)
-	if err = contactStore.First(c); err != nil {
+	if err = contactStore.First(c, userID); err != nil {
 		Fail(w, r, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
 	}
@@ -108,7 +93,7 @@ func UpdateContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = contactStore.Save(c); err != nil {
+	if err = contactStore.Save(c, userID); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
@@ -137,10 +122,11 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
+		userID 		 = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
-	if err = contactStore.Save(c); err != nil {
+	if err = contactStore.Save(c, userID); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
@@ -174,11 +160,12 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
+		userID 		 = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 		c            = &models.Contact{ID: uint(contactID)}
 	)
-	if err = contactStore.Delete(c); err != nil {
+	if err = contactStore.Delete(c, userID); err != nil {
 		logs.Debug(err)
 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return

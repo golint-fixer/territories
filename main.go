@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 
 	"github.com/codegangsta/cli"
 	"github.com/quorumsco/application"
@@ -11,6 +12,7 @@ import (
 	"github.com/quorumsco/contacts/controllers"
 	"github.com/quorumsco/contacts/models"
 	"github.com/quorumsco/databases"
+	"github.com/quorumsco/jsonapi"
 	"github.com/quorumsco/logs"
 	"github.com/quorumsco/router"
 	"github.com/quorumsco/settings"
@@ -65,7 +67,6 @@ func serve(ctx *cli.Context) error {
 
 	//init gorm ici
 
-
 	logs.Debug("connected to %s", args)
 
 	if config.Migrate() {
@@ -84,7 +85,7 @@ func serve(ctx *cli.Context) error {
 
 	app.Use(app.Apply)
 	app.Use(cors)
-	app.use(getUID)
+	app.Use(getUID)
 
 	app.Post("/contacts", controllers.CreateContact)
 	app.Options("/contacts", controllers.ContactCollectionOptions) // Required for CORS
@@ -123,16 +124,20 @@ func cors(h http.Handler) http.Handler {
 
 func getUID(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		var(
-			userID 	uint
-			err 	error
+		var (
+			res    int
+			userID uint
+			err    error
+
+			query = r.URL.Query()
 		)
-		userID, err = strconv.Atoi(query.Get("user_id"))
+		res, err = strconv.Atoi(query.Get("user_id"))
 		if err != nil {
 			logs.Debug(err)
-			Error(w, r, err.Error(), http.StatusBadRequest)
+			jsonapi.Error(w, r, err.Error(), http.StatusBadRequest)
 			return
 		}
+		userID = uint(res)
 		router.Context(r).Env["UserID"] = userID
 		h.ServeHTTP(w, r)
 	}

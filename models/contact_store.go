@@ -3,9 +3,9 @@ package models
 import "github.com/jmoiron/sqlx"
 
 type ContactDS interface {
-	Save(*Contact) error
-	Delete(*Contact) error
-	First(*Contact) error
+	Save(*Contact, uint) error
+	Delete(*Contact, uint) error
+	First(*Contact, uint) error
 	Find(uint) ([]Contact, error)
 
 	FindNotes(*Contact) error

@@ -12,7 +12,7 @@ func getDB(r *http.Request) *sqlx.DB {
 	return router.Context(r).Env["Application"].(*application.Application).Components["DB"].(*sqlx.DB)
 }
 
-func getUID(r *http.Request) *sqlx.DB {
+func getUID(r *http.Request) uint {
 	return router.Context(r).Env["UserID"].(uint)
 }
 //get gorm
