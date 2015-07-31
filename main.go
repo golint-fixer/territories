@@ -61,10 +61,6 @@ func serve(ctx *cli.Context) error {
 	logs.Debug("database type: %s", dialect)
 
 	var app = application.New()
-	// if app.Components["DB"], err = databases.InitSQLX(dialect, args); err != nil {
-	// 	logs.Critical(err)
-	// 	os.Exit(1)
-	// }
 	if app.Components["DB"], err = databases.InitGORM(dialect, args); err != nil {
 		logs.Critical(err)
 		os.Exit(1)
@@ -73,7 +69,6 @@ func serve(ctx *cli.Context) error {
 	logs.Debug("connected to %s", args)
 
 	if config.Migrate() {
-		// if err = migrate(dialect, args); err != nil {
 		if err = migrate(app.Components["DB"].(*gorm.DB)); err != nil {
 			logs.Critical(err)
 			os.Exit(1)
@@ -96,7 +91,7 @@ func serve(ctx *cli.Context) error {
 	app.Get("/contacts", controllers.RetrieveContactCollection)
 
 	app.Get("/contacts/:id", controllers.RetrieveContact)
-	app.Patch("/contacts/:id", controllers.UpdateContact)
+	app.Patch("/contacts/:id", controllers.Upcd dateContact)
 	app.Options("/contacts/:id", controllers.ContactOptions) // Required for CORS
 	app.Delete("/contacts/:id", controllers.DeleteContact)   // Required for CORS
 
@@ -148,15 +143,8 @@ func getUID(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-// func migrate(dialect string, args string) error {
 func migrate(db *gorm.DB) error {
-	// var db, err = databases.InitGORM(dialect, args)
-	// if err != nil {
-	// 	return err
-	// }
-
 	db.LogMode(true)
-
 	db.AutoMigrate(models.Models()...)
 
 	return nil

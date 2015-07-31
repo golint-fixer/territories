@@ -1,6 +1,5 @@
 package models
 
-// import "github.com/jmoiron/sqlx"
 import "github.com/jinzhu/gorm"
 
 type NoteDS interface {
@@ -12,7 +11,6 @@ type NoteDS interface {
 	FindByContact(Contact, uint) ([]Note, error)
 }
 
-// func NoteStore(db *sqlx.DB) NoteDS {
 func NoteStore(db *gorm.DB) NoteDS {
 	return &NoteSQL{DB: db}
 }
