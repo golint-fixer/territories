@@ -77,6 +77,7 @@ func serve(ctx *cli.Context) error {
 	}
 
 	app.Components["Mux"] = router.New()
+	// app.Components["Mux"] = goji.New()
 
 	if config.Debug() {
 		app.Use(router.Logger)
