@@ -32,7 +32,7 @@ type Address struct {
 }
 
 type Contact struct {
-	ID          uint       `json:"id"`
+	ID          uint       `gorm:"primary_key" json:"id"`
 	Firstname   string     `sql:"not null" json:"firstname"`
 	Surname     string     `sql:"not null" json:"surname"`
 	MarriedName *string    `db:"married_name" json:"married_name,omitempty"`
