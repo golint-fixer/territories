@@ -1,19 +1,19 @@
 package main
 
 import (
-	"net/http"
+	// "net/http"
 	"os"
 	"runtime"
-	"strconv"
 
 	"github.com/codegangsta/cli"
 	"github.com/jinzhu/gorm"
-	"github.com/quorumsco/application"
+	// "github.com/quorumsco/application"
 	"github.com/quorumsco/cmd"
 	"github.com/quorumsco/contacts/controllers"
 	"github.com/quorumsco/contacts/models"
 	"github.com/quorumsco/databases"
-	"github.com/quorumsco/jsonapi"
+	"github.com/quorumsco/gojimux"
+	// "github.com/quorumsco/jsonapi"
 	"github.com/quorumsco/logs"
 	"github.com/quorumsco/router"
 	"github.com/quorumsco/settings"
@@ -61,7 +61,8 @@ func serve(ctx *cli.Context) error {
 	}
 	logs.Debug("database type: %s", dialect)
 
-	var app = application.New()
+	// var app = application.New()
+	var app = gojimux.New()
 	if app.Components["DB"], err = databases.InitGORM(dialect, args); err != nil {
 		logs.Critical(err)
 		os.Exit(1)
@@ -78,17 +79,15 @@ func serve(ctx *cli.Context) error {
 	}
 
 	// app.Components["Mux"] = router.New() //Mux
-	// app.Components["Router"] = "Mux"
 	app.Components["Mux"] = web.New() //Goji
-	app.Components["Router"] = "Goji"
 
 	if config.Debug() {
 		app.Use(router.Logger)
 	}
 
 	app.Use(app.Apply)
-	app.Use(cors)
-	app.Use(getUID)
+	app.Use(app.Cors)
+	app.Use(app.SetUID)
 
 	app.Post("/contacts", controllers.CreateContact)
 	app.Options("/contacts", controllers.ContactCollectionOptions) // Required for CORS
@@ -114,37 +113,6 @@ func serve(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 	return app.Serve(server.String())
-}
-
-func cors(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,content-type")
-		h.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(fn)
-}
-
-func getUID(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		var (
-			res    int
-			userID uint
-			err    error
-
-			query = r.URL.Query()
-		)
-		res, err = strconv.Atoi(query.Get("user_id"))
-		if err != nil {
-			logs.Debug(err)
-			jsonapi.Error(w, r, err.Error(), http.StatusBadRequest)
-			return
-		}
-		userID = uint(res)
-		router.Context(r).Env["UserID"] = userID
-		h.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(fn)
 }
 
 func migrate(db *gorm.DB) error {

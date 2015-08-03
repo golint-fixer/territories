@@ -15,9 +15,9 @@ import (
 
 func RetrieveContactCollection(w http.ResponseWriter, r *http.Request) {
 	var (
-		err error
+		err          error
 		contacts     []models.Contact
-		userID 		 = getUID(r)
+		userID       = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
@@ -40,7 +40,7 @@ func RetrieveContact(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		c            = models.Contact{ID: uint(id)}
-		userID 		 = getUID(r)
+		userID       = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
@@ -69,7 +69,7 @@ func UpdateContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID 		 = getUID(r)
+		userID       = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 		c            = &models.Contact{ID: uint(contactID)}
@@ -122,7 +122,7 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID 		 = getUID(r)
+		userID       = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
@@ -160,7 +160,7 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID 		 = getUID(r)
+		userID       = getUID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 		c            = &models.Contact{ID: uint(contactID)}
