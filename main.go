@@ -17,6 +17,7 @@ import (
 	"github.com/quorumsco/logs"
 	"github.com/quorumsco/router"
 	"github.com/quorumsco/settings"
+	"github.com/zenazn/goji/web"
 )
 
 func init() {
@@ -76,8 +77,10 @@ func serve(ctx *cli.Context) error {
 		logs.Debug("database migrated successfully")
 	}
 
-	app.Components["Mux"] = router.New()
-	// app.Components["Mux"] = goji.New()
+	// app.Components["Mux"] = router.New() //Mux
+	// app.Components["Router"] = "Mux"
+	app.Components["Mux"] = web.New() //Goji
+	app.Components["Router"] = "Goji"
 
 	if config.Debug() {
 		app.Use(router.Logger)
