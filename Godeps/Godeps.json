@@ -57,6 +57,10 @@
 			"Rev": "4fc50e53077432246684f9b766a6f3f6a81b8962"
 		},
 		{
+			"ImportPath": "github.com/quorumsco/gojimux",
+			"Rev": "2b7014fdf2e3d78d0fca4d1ce3a8355b8afe49e1"
+		},
+		{
 			"ImportPath": "github.com/quorumsco/jsonapi",
 			"Rev": "d8bcd0d263529137e04f0f513cffab7887c1c548"
 		},
@@ -77,7 +81,7 @@
 			"Rev": "264b0566801533988151a23fc5f75d66d831d6ae"
 		},
 		{
-			"ImportPath": "github.com/zenazn/goji/web/mutil",
+			"ImportPath": "github.com/zenazn/goji/web",
 			"Comment": "v0.9.0-25-gf11b3b8",
 			"Rev": "f11b3b82931df3c540a0a960b6b1de60094d33d6"
 		}
