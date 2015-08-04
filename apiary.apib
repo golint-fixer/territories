@@ -97,7 +97,7 @@ Other specific 5xx "status" could be used (e.g. 503 Service Unavailable).
             "message": "error description"
         }
 
-## Contact Collection [/contacts]
+## Contact Collection [/contacts{?user_id}]
 
 + Model (application/json)
 
@@ -112,6 +112,9 @@ Other specific 5xx "status" could be used (e.g. 503 Service Unavailable).
                 "surname": "Dupond"
             }
         ]
+
++ Parameters
+    + user_id: `1` (integer) - ID of the User
 
 ### Create [POST]
 
@@ -211,7 +214,7 @@ A Contact object has the following attributes:
 + firstname (string) - **required**
 + surname (string) - **required**
 
-## Contact [/contacts/{contact_id}]
+## Contact [/contacts/{contact_id}{?user_id}]
 
 + Model (application/json)
 
@@ -222,6 +225,7 @@ A Contact object has the following attributes:
 
 + Parameters
     + contact_id: `1` (integer) - ID of the Contact
+    + user_id: `1` (integer) - ID of the User
 
 ### Retrieve [GET]
 
