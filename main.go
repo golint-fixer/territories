@@ -133,9 +133,14 @@ func setUID(h http.Handler) http.Handler {
 
 			query = r.URL.Query()
 		)
-		res, err = strconv.Atoi(query.Get("user_id"))
+		uid := query.Get("user_id")
+		if uid == "" {
+			jsonapi.Fail(w, r, map[string]string{"user_id": "missing required get parameter"}, http.StatusBadRequest)
+			return
+		}
+		res, err = strconv.Atoi(uid)
 		if err != nil {
-			logs.Debug(err)
+			logs.Error(err)
 			jsonapi.Error(w, r, err.Error(), http.StatusBadRequest)
 			return
 		}
