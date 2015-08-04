@@ -1,6 +1,9 @@
 {
 	"ImportPath": "github.com/quorumsco/contacts",
 	"GoVersion": "go1.4.2",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/asaskevich/govalidator",
@@ -46,7 +49,7 @@
 		},
 		{
 			"ImportPath": "github.com/quorumsco/application",
-			"Rev": "a8d01bbf66fa2e5934e66d28dc0f8fe913b79cb8"
+			"Rev": "c03629cc2d26c78fd4367a3b06ed48d1a42c5d7f"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/cmd",
@@ -70,7 +73,7 @@
 		},
 		{
 			"ImportPath": "github.com/quorumsco/router",
-			"Rev": "ae4f49f83f7977c3ecf591033bb525d6f97dc3ee"
+			"Rev": "0cc02b61baea488c5be99ead4e80f80b1f4bf6e7"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/settings",
