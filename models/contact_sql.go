@@ -1,10 +1,6 @@
 package models
 
-import (
-	"fmt"
-
-	"github.com/jinzhu/gorm"
-)
+import "github.com/jinzhu/gorm"
 
 type ContactSQL struct {
 	DB *gorm.DB
@@ -30,8 +26,7 @@ func (s *ContactSQL) Delete(c *Contact, userID uint) error {
 }
 
 func (s *ContactSQL) First(c *Contact, userID uint) error {
-	s.DB.Where("user_id = ?", userID).Where("id = ?", c.ID).Find(c)
-	fmt.Println(c)
+	s.DB.Where("user_id = ?", userID).Find(c)
 
 	return s.DB.Error
 }

@@ -84,7 +84,7 @@ func serve(ctx *cli.Context) error {
 		app.Use(router.Logger)
 	}
 
-	app.Components["Mux"].(*gojimux.Gojimux).Mux.Use(gojimux.InitContext) //prend context c.web
+	app.Components["Mux"].(*gojimux.Gojimux).Mux.Use(gojimux.InitContext)
 	app.Use(app.Apply)
 	app.Use(setUID)
 	app.Use(cors)
@@ -101,8 +101,8 @@ func serve(ctx *cli.Context) error {
 	app.Post("/contacts/:id/notes", controllers.CreateNote)
 	app.Get("/contacts/:id/notes", controllers.RetrieveNoteCollection)
 
-	// app.Get("/contacts/:id/notes/:node_id", controllers.RetrieveNote)
-	app.Delete("/contacts/:id/notes/:node_id", controllers.DeleteNote)
+	app.Get("/contacts/:id/notes/:note_id", controllers.RetrieveNoteById)
+	app.Delete("/contacts/:id/notes/:note_id", controllers.DeleteNote)
 
 	// app.Get("/contacts/:id/tags", controllers.RetrieveTagsByContact)
 

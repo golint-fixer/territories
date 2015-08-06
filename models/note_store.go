@@ -9,6 +9,7 @@ type NoteDS interface {
 	// Find() ([]Note, error)
 
 	FindByContact(Contact, uint) ([]Note, error)
+	FindNoteById(*Note, uint, uint, uint) error
 }
 
 func NoteStore(db *gorm.DB) NoteDS {

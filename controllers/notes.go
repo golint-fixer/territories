@@ -12,6 +12,43 @@ import (
 	"github.com/quorumsco/router"
 )
 
+func RetrieveNoteById(w http.ResponseWriter, r *http.Request) {
+	var (
+		contactID int
+		err       error
+	)
+	contactID, err = strconv.Atoi(router.Context(r).Param("id"))
+	if err != nil {
+		logs.Debug(err)
+		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
+		return
+	}
+
+	var noteID int
+	noteID, err = strconv.Atoi(router.Context(r).Param("note_id"))
+	if err != nil {
+		logs.Debug(err)
+		Fail(w, r, map[string]interface{}{"note_id": "not integer"}, http.StatusBadRequest)
+		return
+	}
+
+	var n = new(models.Note)
+
+	var (
+		userID    = getUID(r)
+		db        = getDB(r)
+		noteStore = models.NoteStore(db)
+	)
+	err = noteStore.FindNoteById(n, userID, uint(noteID), uint(contactID))
+	if err != nil {
+		logs.Error(err)
+		Error(w, r, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	Success(w, r, views.Note{Note: n}, http.StatusOK)
+}
+
 func RetrieveNoteCollection(w http.ResponseWriter, r *http.Request) {
 	var (
 		contactID int
@@ -46,9 +83,9 @@ func RetrieveNoteCollection(w http.ResponseWriter, r *http.Request) {
 func CreateNote(w http.ResponseWriter, r *http.Request) {
 	var (
 		contactID int
-		n         = new(models.Note)
+		err       error
 
-		err error
+		n = new(models.Note)
 	)
 	contactID, err = strconv.Atoi(router.Context(r).Param("id"))
 	if err != nil {
