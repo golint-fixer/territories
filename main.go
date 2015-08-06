@@ -70,10 +70,7 @@ func serve(ctx *cli.Context) error {
 	logs.Debug("connected to %s", args)
 
 	if config.Migrate() {
-		if err = migrate(app.Components["DB"].(*gorm.DB)); err != nil {
-			logs.Critical(err)
-			os.Exit(1)
-		}
+		db.AutoMigrate(models.Models()...)
 		logs.Debug("database migrated successfully")
 	}
 
@@ -81,6 +78,7 @@ func serve(ctx *cli.Context) error {
 	app.Components["Mux"] = gojimux.New() //Goji
 
 	if config.Debug() {
+		db.LogMode(true)
 		app.Use(router.Logger)
 	}
 
@@ -149,11 +147,4 @@ func setUID(h http.Handler) http.Handler {
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
-}
-
-func migrate(db *gorm.DB) error {
-	db.LogMode(true)
-	db.AutoMigrate(models.Models()...)
-
-	return nil
 }

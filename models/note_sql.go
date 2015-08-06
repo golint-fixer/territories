@@ -15,7 +15,7 @@ func (s *NoteSQL) Save(n *Note, userID uint, contactID uint) error {
 		return s.DB.Error
 	}
 
-	s.DB.Where("user_id = ?", userID).Where("contactid = ?", contactID).Save(n)
+	s.DB.Where("user_id = ?", userID).Where("contact_id = ?", contactID).Save(n)
 
 	return s.DB.Error
 }
@@ -24,7 +24,7 @@ func (s *NoteSQL) Delete(n *Note, userID uint, contactID uint) error {
 	n.ContactID = contactID
 	n.UserID = userID
 
-	s.DB.Where("user_id = ?", userID).Where("contactid = ?", contactID).Delete(n)
+	s.DB.Where("user_id = ?", userID).Where("contact_id = ?", contactID).Delete(n)
 
 	return s.DB.Error
 }
@@ -42,7 +42,7 @@ func (s *NoteSQL) FindByContact(contact Contact, userID uint) ([]Note, error) {
 func (s *NoteSQL) FindNoteById(n *Note, userID uint, noteID uint, contactID uint) error {
 	n.ContactID = contactID
 	n.ID = noteID
-	s.DB.Where("user_id = ?", userID).Where("contactid = ?", contactID).Find(n)
+	s.DB.Where("user_id = ?", userID).Where("contact_id = ?", contactID).Find(n)
 
 	return s.DB.Error
 }
