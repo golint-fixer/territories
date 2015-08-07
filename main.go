@@ -70,7 +70,7 @@ func serve(ctx *cli.Context) error {
 	logs.Debug("connected to %s", args)
 
 	if config.Migrate() {
-		db.AutoMigrate(models.Models()...)
+		app.Components["DB"].(*gorm.DB).AutoMigrate(models.Models()...)
 		logs.Debug("database migrated successfully")
 	}
 
@@ -78,7 +78,7 @@ func serve(ctx *cli.Context) error {
 	app.Components["Mux"] = gojimux.New() //Goji
 
 	if config.Debug() {
-		db.LogMode(true)
+		app.Components["DB"].(*gorm.DB).LogMode(true)
 		app.Use(router.Logger)
 	}
 
@@ -102,7 +102,11 @@ func serve(ctx *cli.Context) error {
 	app.Get("/contacts/:id/notes/:note_id", controllers.RetrieveNoteById)
 	app.Delete("/contacts/:id/notes/:note_id", controllers.DeleteNote)
 
-	// app.Get("/contacts/:id/tags", controllers.RetrieveTagsByContact)
+	app.Get("/contacts/:id/tags", controllers.RetrieveTagCollection)
+	app.Post("/contacts/:id/tags", controllers.CreateTag)
+
+	app.Get("/contacts/:id/tags/:tag_id", controllers.RetrieveTagById)
+	app.Delete("/contacts/:id/tags/:tag_id", controllers.DeleteTag)
 
 	var server settings.Server
 	server, err = config.Server()

@@ -39,7 +39,7 @@ func RetrieveNoteById(w http.ResponseWriter, r *http.Request) {
 		db        = getDB(r)
 		noteStore = models.NoteStore(db)
 	)
-	err = noteStore.FindNoteById(n, userID, uint(noteID), uint(contactID))
+	err = noteStore.FindById(n, userID, uint(noteID), uint(contactID))
 	if err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)

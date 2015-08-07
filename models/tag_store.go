@@ -1,14 +1,14 @@
 package models
 
-import "github.com/jmoiron/sqlx"
+import "github.com/jinzhu/gorm"
 
 type TagDS interface {
-	// Save(*Note) error
-	// Delete(*Note) error
-	// First(*Note) error
-	// Find() ([]Note, error)
+	SaveTag(*Tag, Contact) error
+	DeleteTag(*Tag, Contact) error
+	FindTagsByContact(Contact) ([]Tag, error)
+	FindTagById(*Tag, Contact) error
 }
 
-func TagStore(db *sqlx.DB) TagDS {
+func TagStore(db *gorm.DB) TagDS {
 	return &TagSQL{DB: db}
 }

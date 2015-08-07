@@ -46,7 +46,7 @@ func RetrieveContact(w http.ResponseWriter, r *http.Request) {
 	)
 	if err = contactStore.First(&c, userID); err != nil {
 		if err == sql.ErrNoRows {
-			Success(w, r, nil, http.StatusNotFound)
+			Fail(w, r, nil, http.StatusNotFound)
 			return
 		}
 		logs.Error(err)

@@ -49,3 +49,12 @@ func (s *ContactSQL) FindNotes(c *Contact, userID uint) error {
 
 	return err
 }
+
+func (s *ContactSQL) FindTags(c *Contact) error {
+	var tagStore = TagStore(s.DB)
+	var err error
+
+	c.Tags, err = tagStore.FindTagsByContact(*c)
+
+	return err
+}

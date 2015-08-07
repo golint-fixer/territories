@@ -9,6 +9,7 @@ type ContactDS interface {
 	Find(uint) ([]Contact, error)
 
 	FindNotes(*Contact, uint) error
+	FindTags(*Contact) error
 }
 
 func ContactStore(db *gorm.DB) ContactDS {

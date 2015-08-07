@@ -46,7 +46,7 @@ type Contact struct {
 
 	Address *Address `json:"address,omitempty"`
 	Notes   []Note   `json:"notes,omitempty"`
-	Tags    []Tag    `json:"tags,omitempty"`
+	Tags    []Tag    `json:"tags,omitempty" gorm:"many2many:user_tags;"`
 }
 
 func (c *Contact) Validate() map[string]string {
