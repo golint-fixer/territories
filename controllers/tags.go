@@ -114,10 +114,9 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 		Fail(w, r, map[string]interface{}{"contact_id": "not integer"}, http.StatusBadRequest)
 		return
 	}
-
 	if err = Request(&views.Tag{Tag: t}, r); err != nil {
 		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"note": err.Error()}, http.StatusBadRequest)
+		Fail(w, r, map[string]interface{}{"tag": err.Error()}, http.StatusBadRequest)
 		return
 	}
 
@@ -128,7 +127,6 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 		contactStore = models.ContactStore(db)
 		c            = models.Contact{ID: uint(contactID)}
 	)
-
 	if err = contactStore.First(&c, userID); err != nil {
 		if err == sql.ErrNoRows {
 			Fail(w, r, nil, http.StatusNotFound)
