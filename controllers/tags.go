@@ -33,6 +33,7 @@ func RetrieveTagById(w http.ResponseWriter, r *http.Request) {
 	)
 	if err = contactStore.First(&c, userID); err != nil {
 		if err == sql.ErrNoRows {
+			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
 			return
 		}
@@ -40,7 +41,10 @@ func RetrieveTagById(w http.ResponseWriter, r *http.Request) {
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	if c.UserID == 0 {
+		Fail(w, r, map[string]interface{}{"contact_id": "no permission"}, http.StatusBadRequest)
+		return
+	}
 	var tagID int
 	tagID, err = strconv.Atoi(router.Context(r).Param("tag_id"))
 	if err != nil {
@@ -83,6 +87,7 @@ func RetrieveTagCollection(w http.ResponseWriter, r *http.Request) {
 	)
 	if err = contactStore.First(&c, userID); err != nil {
 		if err == sql.ErrNoRows {
+			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
 			return
 		}
@@ -90,7 +95,10 @@ func RetrieveTagCollection(w http.ResponseWriter, r *http.Request) {
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	if c.UserID == 0 {
+		Fail(w, r, map[string]interface{}{"contact_id": "no permission"}, http.StatusBadRequest)
+		return
+	}
 	err = contactStore.FindTags(&c)
 	if err != nil {
 		logs.Error(err)
@@ -129,6 +137,7 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 	)
 	if err = contactStore.First(&c, userID); err != nil {
 		if err == sql.ErrNoRows {
+			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
 			return
 		}
@@ -136,7 +145,10 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	if c.UserID == 0 {
+		Fail(w, r, map[string]interface{}{"contact_id": "no permission"}, http.StatusBadRequest)
+		return
+	}
 	if err = tagStore.SaveTag(t, c); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
@@ -174,6 +186,7 @@ func DeleteTag(w http.ResponseWriter, r *http.Request) {
 	)
 	if err = contactStore.First(&c, userID); err != nil {
 		if err == sql.ErrNoRows {
+			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
 			return
 		}
@@ -181,7 +194,10 @@ func DeleteTag(w http.ResponseWriter, r *http.Request) {
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	if c.UserID == 0 {
+		Fail(w, r, map[string]interface{}{"contact_id": "no permission"}, http.StatusBadRequest)
+		return
+	}
 	var (
 		t        = &models.Tag{ID: uint(tagID)}
 		tagStore = models.TagStore(db)
