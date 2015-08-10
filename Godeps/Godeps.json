@@ -61,11 +61,11 @@
 		},
 		{
 			"ImportPath": "github.com/quorumsco/gojimux",
-			"Rev": "2b7014fdf2e3d78d0fca4d1ce3a8355b8afe49e1"
+			"Rev": "09ebc56b322b0058aeb207eb14955eac5f983f4d"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/jsonapi",
-			"Rev": "d8bcd0d263529137e04f0f513cffab7887c1c548"
+			"Rev": "cf832352800b133ea301f10bcaccf30406f56b59"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/logs",
