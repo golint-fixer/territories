@@ -82,7 +82,6 @@ func serve(ctx *cli.Context) error {
 		app.Use(router.Logger)
 	}
 
-	app.Components["Mux"].(*gojimux.Gojimux).Mux.Use(gojimux.InitContext)
 	app.Use(app.Apply)
 	app.Use(setUID)
 	app.Use(cors)
