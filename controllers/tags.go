@@ -26,12 +26,12 @@ func RetrieveTagById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 		c            = models.Contact{ID: uint(contactID)}
 	)
-	if err = contactStore.First(&c, userID); err != nil {
+	if err = contactStore.First(&c, groupID); err != nil {
 		if err == sql.ErrNoRows {
 			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
@@ -41,7 +41,7 @@ func RetrieveTagById(w http.ResponseWriter, r *http.Request) {
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if c.UserID == 0 {
+	if c.GroupID == 0 {
 		Fail(w, r, map[string]interface{}{"contact_id": "no permission"}, http.StatusBadRequest)
 		return
 	}
@@ -80,12 +80,12 @@ func RetrieveTagCollection(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 		c            = models.Contact{ID: uint(contactID)}
 	)
-	if err = contactStore.First(&c, userID); err != nil {
+	if err = contactStore.First(&c, groupID); err != nil {
 		if err == sql.ErrNoRows {
 			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
@@ -95,7 +95,7 @@ func RetrieveTagCollection(w http.ResponseWriter, r *http.Request) {
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if c.UserID == 0 {
+	if c.GroupID == 0 {
 		Fail(w, r, map[string]interface{}{"contact_id": "no permission"}, http.StatusBadRequest)
 		return
 	}
@@ -129,13 +129,13 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		db           = getDB(r)
 		tagStore     = models.TagStore(db)
 		contactStore = models.ContactStore(db)
 		c            = models.Contact{ID: uint(contactID)}
 	)
-	if err = contactStore.First(&c, userID); err != nil {
+	if err = contactStore.First(&c, groupID); err != nil {
 		if err == sql.ErrNoRows {
 			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
@@ -145,7 +145,7 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if c.UserID == 0 {
+	if c.GroupID == 0 {
 		Fail(w, r, map[string]interface{}{"contact_id": "no permission"}, http.StatusBadRequest)
 		return
 	}
@@ -180,11 +180,11 @@ func DeleteTag(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		db           = getDB(r)
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		contactStore = models.ContactStore(db)
 		c            = models.Contact{ID: uint(contactID)}
 	)
-	if err = contactStore.First(&c, userID); err != nil {
+	if err = contactStore.First(&c, groupID); err != nil {
 		if err == sql.ErrNoRows {
 			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
@@ -194,7 +194,7 @@ func DeleteTag(w http.ResponseWriter, r *http.Request) {
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if c.UserID == 0 {
+	if c.GroupID == 0 {
 		Fail(w, r, map[string]interface{}{"contact_id": "no permission"}, http.StatusBadRequest)
 		return
 	}

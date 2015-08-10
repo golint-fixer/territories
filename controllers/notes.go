@@ -35,11 +35,11 @@ func RetrieveNoteById(w http.ResponseWriter, r *http.Request) {
 	var n = new(models.Note)
 
 	var (
-		userID    = getUID(r)
+		getID     = getGID(r)
 		db        = getDB(r)
 		noteStore = models.NoteStore(db)
 	)
-	err = noteStore.FindById(n, userID, uint(noteID), uint(contactID))
+	err = noteStore.FindById(n, getID, uint(noteID), uint(contactID))
 	if err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
@@ -66,11 +66,11 @@ func RetrieveNoteCollection(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID       = getUID(r)
+		getID        = getGID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
-	err = contactStore.FindNotes(&c, userID)
+	err = contactStore.FindNotes(&c, getID)
 	if err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
@@ -101,11 +101,11 @@ func CreateNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID    = getUID(r)
+		getID     = getGID(r)
 		db        = getDB(r)
 		noteStore = models.NoteStore(db)
 	)
-	if err = noteStore.Save(n, userID, uint(contactID)); err != nil {
+	if err = noteStore.Save(n, getID, uint(contactID)); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
@@ -134,12 +134,12 @@ func DeleteNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID    = getUID(r)
+		getID     = getGID(r)
 		db        = getDB(r)
 		noteStore = models.NoteStore(db)
 		n         = &models.Note{ID: uint(noteID), ContactID: uint(contactID)}
 	)
-	if err = noteStore.Delete(n, userID, uint(contactID)); err != nil {
+	if err = noteStore.Delete(n, getID, uint(contactID)); err != nil {
 		logs.Debug(err)
 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return

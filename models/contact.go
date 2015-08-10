@@ -42,11 +42,11 @@ type Contact struct {
 	Phone       *string    `json:"phone,omitempty"`
 	Mobile      *string    `json:"mobile,omitempty"`
 
-	UserID uint `sql:"not null" db:"user_id" json:"-"`
+	GroupID uint `sql:"not null" db:"group_id" json:"-"`
 
 	Address *Address `json:"address,omitempty"`
 	Notes   []Note   `json:"notes,omitempty"`
-	Tags    []Tag    `json:"tags,omitempty" gorm:"many2many:user_tags;"`
+	Tags    []Tag    `json:"tags,omitempty" gorm:"many2many:contact_tags;"`
 }
 
 func (c *Contact) Validate() map[string]string {

@@ -17,11 +17,11 @@ func RetrieveContactCollection(w http.ResponseWriter, r *http.Request) {
 	var (
 		err          error
 		contacts     []models.Contact
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
-	if contacts, err = contactStore.Find(userID); err != nil {
+	if contacts, err = contactStore.Find(groupID); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
@@ -40,11 +40,11 @@ func RetrieveContact(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		c            = models.Contact{ID: uint(id)}
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
-	if err = contactStore.First(&c, userID); err != nil {
+	if err = contactStore.First(&c, groupID); err != nil {
 		if err == sql.ErrNoRows {
 			Fail(w, r, nil, http.StatusNotFound)
 			return
@@ -69,12 +69,12 @@ func UpdateContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 		c            = &models.Contact{ID: uint(contactID)}
 	)
-	if err = contactStore.First(c, userID); err != nil {
+	if err = contactStore.First(c, groupID); err != nil {
 		Fail(w, r, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
 	}
@@ -93,7 +93,7 @@ func UpdateContact(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = contactStore.Save(c, userID); err != nil {
+	if err = contactStore.Save(c, groupID); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
@@ -122,11 +122,11 @@ func CreateContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 	)
-	if err = contactStore.Save(c, userID); err != nil {
+	if err = contactStore.Save(c, groupID); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
@@ -160,12 +160,12 @@ func DeleteContact(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		userID       = getUID(r)
+		groupID      = getGID(r)
 		db           = getDB(r)
 		contactStore = models.ContactStore(db)
 		c            = &models.Contact{ID: uint(contactID)}
 	)
-	if err = contactStore.Delete(c, userID); err != nil {
+	if err = contactStore.Delete(c, groupID); err != nil {
 		logs.Debug(err)
 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
 		return

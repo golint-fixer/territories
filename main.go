@@ -83,17 +83,17 @@ func serve(ctx *cli.Context) error {
 	}
 
 	app.Use(app.Apply)
-	app.Use(setUID)
+	app.Use(setGID)
 	app.Use(cors)
 
 	app.Post("/contacts", controllers.CreateContact)
-	app.Options("/contacts", controllers.ContactCollectionOptions) // Required for CORS
+	app.Options("/contacts", controllers.ContactCollectionOptions)
 	app.Get("/contacts", controllers.RetrieveContactCollection)
 
 	app.Get("/contacts/:id", controllers.RetrieveContact)
 	app.Patch("/contacts/:id", controllers.UpdateContact)
-	app.Options("/contacts/:id", controllers.ContactOptions) // Required for CORS
-	app.Delete("/contacts/:id", controllers.DeleteContact)   // Required for CORS
+	app.Options("/contacts/:id", controllers.ContactOptions)
+	app.Delete("/contacts/:id", controllers.DeleteContact)
 
 	app.Post("/contacts/:id/notes", controllers.CreateNote)
 	app.Get("/contacts/:id/notes", controllers.RetrieveNoteCollection)
@@ -125,18 +125,18 @@ func cors(h http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func setUID(h http.Handler) http.Handler {
+func setGID(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		var (
-			res    int
-			userID uint
-			err    error
+			res     int
+			groupID uint
+			err     error
 
 			query = r.URL.Query()
 		)
-		uid := query.Get("user_id")
+		uid := query.Get("group_id")
 		if uid == "" {
-			jsonapi.Fail(w, r, map[string]string{"user_id": "missing required get parameter"}, http.StatusBadRequest)
+			jsonapi.Fail(w, r, map[string]string{"group_id": "missing required get parameter"}, http.StatusBadRequest)
 			return
 		}
 		res, err = strconv.Atoi(uid)
@@ -145,8 +145,8 @@ func setUID(h http.Handler) http.Handler {
 			jsonapi.Error(w, r, err.Error(), http.StatusBadRequest)
 			return
 		}
-		userID = uint(res)
-		router.Context(r).Env["UserID"] = userID
+		groupID = uint(res)
+		router.Context(r).Env["GroupID"] = groupID
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
