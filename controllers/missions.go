@@ -21,7 +21,7 @@ func RetrieveMissionById(w http.ResponseWriter, r *http.Request) {
 	missionID, err = strconv.Atoi(router.Context(r).Param("mission_id"))
 	if err != nil {
 		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"mision_id": "not integer"}, http.StatusBadRequest)
+		Fail(w, r, map[string]interface{}{"mission_id": "not integer"}, http.StatusBadRequest)
 		return
 	}
 
@@ -31,7 +31,7 @@ func RetrieveMissionById(w http.ResponseWriter, r *http.Request) {
 		missionStore = models.MissionStore(db)
 		m            = models.Mission{ID: uint(missionID), GroupID: groupID}
 	)
-	if err = missionStore.FindMissionById(&m, groupID); err != nil {
+	if err = missionStore.FindMissionById(&m); err != nil {
 		if err == sql.ErrNoRows {
 			logs.Error(err)
 			Fail(w, r, nil, http.StatusNotFound)
@@ -52,7 +52,7 @@ func RetrieveMissionCollection(w http.ResponseWriter, r *http.Request) {
 		missionStore = models.MissionStore(db)
 		m            = models.Mission{GroupID: uint(groupID)}
 	)
-	missions, err := missionStore.FindMissions(&m)
+	missions, err := missionStore.FindMissions(m)
 	if err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
@@ -106,7 +106,7 @@ func UpdateMission(w http.ResponseWriter, r *http.Request) {
 		missionStore = models.MissionStore(db)
 		m            = &models.Mission{ID: uint(missionID), GroupID: groupID}
 	)
-	if err = missionStore.FindMissionById(m, groupID); err != nil {
+	if err = missionStore.FindMissionById(m); err != nil {
 		Fail(w, r, map[string]interface{}{"mission": err.Error()}, http.StatusBadRequest)
 		return
 	}
@@ -141,9 +141,9 @@ func DeleteMission(w http.ResponseWriter, r *http.Request) {
 		db           = getDB(r)
 		groupID      = getGID(r)
 		missionStore = models.MissionStore(db)
-		m            = models.Mission{ID: uint(missionID)}
+		m            = models.Mission{ID: uint(missionID), GroupID: groupID}
 	)
-	if err = missionStore.DeleteMission(m); err != nil {
+	if err = missionStore.DeleteMission(&m); err != nil {
 		logs.Debug(err)
 		Fail(w, r, nil, http.StatusBadRequest)
 		return
