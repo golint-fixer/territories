@@ -97,15 +97,19 @@ func serve(ctx *cli.Context) error {
 
 	app.Post("/contacts/:id/notes", controllers.CreateNote)
 	app.Get("/contacts/:id/notes", controllers.RetrieveNoteCollection)
-
 	app.Get("/contacts/:id/notes/:note_id", controllers.RetrieveNoteById)
 	app.Delete("/contacts/:id/notes/:note_id", controllers.DeleteNote)
 
 	app.Get("/contacts/:id/tags", controllers.RetrieveTagCollection)
 	app.Post("/contacts/:id/tags", controllers.CreateTag)
-
 	app.Get("/contacts/:id/tags/:tag_id", controllers.RetrieveTagById)
 	app.Delete("/contacts/:id/tags/:tag_id", controllers.DeleteTag)
+
+	app.Get("/missions", controllers.RetrieveMissionCollection)
+	app.Post("/missions", controllers.CreateMission)
+	app.Patch("/missions/:mission_id", controllers.UpdateMission)
+	app.Get("/missions/:mission_id", controllers.RetrieveMissionById)
+	app.Delete("missions/:mission_id", controllers.DeleteMission)
 
 	var server settings.Server
 	server, err = config.Server()

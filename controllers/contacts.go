@@ -84,7 +84,6 @@ func UpdateContact(w http.ResponseWriter, r *http.Request) {
 		Fail(w, r, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
 		return
 	}
-	c.ID = uint(contactID)
 
 	var errs = c.Validate()
 	if len(errs) > 0 {

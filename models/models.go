@@ -8,6 +8,6 @@ import (
 
 func Models() []interface{} {
 	return []interface{}{
-		&Contact{}, &Note{}, &Tag{},
+		&Contact{}, &Note{}, &Tag{}, &Mission{},
 	}
 }

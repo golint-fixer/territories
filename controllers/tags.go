@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -155,7 +154,6 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Location", fmt.Sprintf("/%s/%d", "tag", t.ID))
 	Success(w, r, views.Tag{Tag: t}, http.StatusCreated)
 }
 
