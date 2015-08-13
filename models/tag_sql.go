@@ -8,7 +8,7 @@ type TagSQL struct {
 
 func (s *TagSQL) SaveTag(t *Tag, c Contact) error {
 	if t.ID == 0 {
-		s.DB.Model(&c).Association("Tags").Append(t)
+		s.DB.Debug().Model(&c).Association("Tags").Append(t)
 
 		return s.DB.Error
 	}

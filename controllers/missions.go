@@ -79,12 +79,16 @@ func CreateMission(w http.ResponseWriter, r *http.Request) {
 		missionStore = models.MissionStore(db)
 	)
 	m.GroupID = groupID
+	for i, _ := range m.Contacts {
+		m.Contacts[i].GroupID = groupID
+	}
 	if err = missionStore.SaveMission(m); err != nil {
 		logs.Error(err)
 		Error(w, r, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	logs.Debug("CACA")
 	w.Header().Set("Location", fmt.Sprintf("/%s/%d", "mission", m.ID))
 	Success(w, r, views.Mission{Mission: m}, http.StatusCreated)
 }

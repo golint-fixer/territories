@@ -1,32 +1,43 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"fmt"
+
+	"github.com/jinzhu/gorm"
+)
 
 type MissionSQL struct {
 	DB *gorm.DB
 }
 
 func (s *MissionSQL) SaveMission(m *Mission) error {
+	c := new([]Contact)
 	if m.ID == 0 {
-		s.DB.Model(m).Association("Contacts").Append(m)
+		fmt.Println("")
+		fmt.Println(m)
+		fmt.Println("")
+		s.DB.Model(m).Related(c, "Contacts").Save(m)
 
 		return s.DB.Error
 	}
 
-	s.DB.Model(m).Association("Contacts").Replace(m)
+	s.DB.Model(m).Related(c, "Contacts").Update(m)
 
 	return s.DB.Error
 }
 
 func (s *MissionSQL) DeleteMission(m *Mission) error {
-	s.DB.Model(m).Association("Contacts").Delete(m)
+	c := new([]Contact)
+	s.DB.Model(m).Related(c, "Contacts").Delete(m)
 
 	return s.DB.Error
 }
 
 func (s *MissionSQL) FindMissions(m Mission) ([]Mission, error) {
 	var missions []Mission
-	s.DB.Model(&m).Association("Contacts").Find(&missions)
+	c := new([]Contact)
+	s.DB.Model(m).Related(c, "Contacts").Find(&missions)
+
 	if s.DB.Error != nil {
 		return make([]Mission, 0), nil
 	}
@@ -35,7 +46,8 @@ func (s *MissionSQL) FindMissions(m Mission) ([]Mission, error) {
 }
 
 func (s *MissionSQL) FindMissionById(m *Mission) error {
-	s.DB.Model(m).Association("Contacts").Find(m)
+	c := new([]Contact)
+	s.DB.Model(m).Related(c, "Contacts").Find(m)
 
 	return s.DB.Error
 }
