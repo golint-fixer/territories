@@ -13,6 +13,45 @@ import (
 	"github.com/quorumsco/router"
 )
 
+func RetrieveContactsByMission(w http.ResponseWriter, r *http.Request) {
+	var (
+		missionID int
+		err       error
+	)
+	missionID, err = strconv.Atoi(router.Context(r).Param("mission_id"))
+	if err != nil {
+		logs.Debug(err)
+		Fail(w, r, map[string]interface{}{"mission_id": "not integer"}, http.StatusBadRequest)
+		return
+	}
+
+	var (
+		groupID      = getGID(r)
+		db           = getDB(r)
+		missionStore = models.MissionStore(db)
+		m            = models.Mission{ID: uint(missionID), GroupID: groupID}
+	)
+	if err = missionStore.FindMissionById(&m); err != nil {
+		if err == sql.ErrNoRows {
+			logs.Error(err)
+			Fail(w, r, nil, http.StatusNotFound)
+			return
+		}
+		logs.Error(err)
+		Error(w, r, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var c []models.Contact
+	if c, err = missionStore.FindContactByMission(&m); err != nil {
+		logs.Error(err)
+		Error(w, r, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	Success(w, r, views.Contacts{Contacts: c}, http.StatusOK)
+}
+
 func RetrieveMissionById(w http.ResponseWriter, r *http.Request) {
 	var (
 		missionID int

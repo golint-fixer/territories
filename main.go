@@ -110,6 +110,7 @@ func serve(ctx *cli.Context) error {
 	app.Patch("/missions/:mission_id", controllers.UpdateMission)
 	app.Get("/missions/:mission_id", controllers.RetrieveMissionById)
 	app.Delete("missions/:mission_id", controllers.DeleteMission)
+	app.Get("/missions/:mission_id/contacts", controllers.RetrieveContactsByMission)
 
 	var server settings.Server
 	server, err = config.Server()

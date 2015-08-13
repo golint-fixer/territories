@@ -7,6 +7,7 @@ type MissionDS interface {
 	DeleteMission(*Mission) error
 	FindMissionById(*Mission) error
 	FindMissions(Mission) ([]Mission, error)
+	FindContactByMission(*Mission) ([]Contact, error)
 }
 
 func MissionStore(db *gorm.DB) MissionDS {
