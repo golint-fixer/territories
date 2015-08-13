@@ -13,9 +13,6 @@ type MissionSQL struct {
 func (s *MissionSQL) SaveMission(m *Mission) error {
 	c := new([]Contact)
 	if m.ID == 0 {
-		fmt.Println("")
-		fmt.Println(m)
-		fmt.Println("")
 		s.DB.Model(m).Related(c, "Contacts").Save(m)
 
 		return s.DB.Error

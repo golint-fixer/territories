@@ -88,7 +88,6 @@ func CreateMission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logs.Debug("CACA")
 	w.Header().Set("Location", fmt.Sprintf("/%s/%d", "mission", m.ID))
 	Success(w, r, views.Mission{Mission: m}, http.StatusCreated)
 }
