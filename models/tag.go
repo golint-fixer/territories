@@ -5,3 +5,14 @@ type Tag struct {
 	Name  string `json:"name" sql:"not null;unique"`
 	Color uint   `json:"color"`
 }
+
+type TagArgs struct {
+	GroupID   uint
+	ContactID uint
+	Tag       *Tag
+}
+
+type TagReply struct {
+	Tag  *Tag
+	Tags []Tag
+}

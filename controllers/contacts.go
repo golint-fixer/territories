@@ -1,175 +1,85 @@
 package controllers
 
 import (
-	"database/sql"
-	"fmt"
-	"net/http"
-	"strconv"
-
+	"github.com/jinzhu/gorm"
 	"github.com/quorumsco/contacts/models"
-	"github.com/quorumsco/contacts/views"
-	. "github.com/quorumsco/jsonapi"
 	"github.com/quorumsco/logs"
-	"github.com/quorumsco/router"
 )
 
-func RetrieveContactCollection(w http.ResponseWriter, r *http.Request) {
+type Contact struct {
+	DB *gorm.DB
+}
+
+func (t *Contact) RetrieveCollection(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
+		contactStore = models.ContactStore(t.DB)
 		err          error
-		contacts     []models.Contact
-		groupID      = getGID(r)
-		db           = getDB(r)
-		contactStore = models.ContactStore(db)
 	)
-	if contacts, err = contactStore.Find(groupID); err != nil {
+
+	if reply.Contacts, err = contactStore.Find(args); err != nil {
 		logs.Error(err)
-		Error(w, r, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	Success(w, r, views.Contacts{Contacts: contacts}, http.StatusOK)
+	return nil
 }
 
-func RetrieveContact(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.Atoi(router.Context(r).Param("id"))
-	if err != nil {
-		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-		return
-	}
-
+func (t *Contact) Retrieve(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
-		c            = models.Contact{ID: uint(id)}
-		groupID      = getGID(r)
-		db           = getDB(r)
-		contactStore = models.ContactStore(db)
+		contactStore = models.ContactStore(t.DB)
+		err          error
 	)
-	if err = contactStore.First(&c, groupID); err != nil {
-		if err == sql.ErrNoRows {
-			Fail(w, r, nil, http.StatusNotFound)
-			return
-		}
+
+	if reply.Contact, err = contactStore.First(args); err != nil {
 		logs.Error(err)
-		Error(w, r, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	Success(w, r, views.Contact{Contact: &c}, http.StatusOK)
+	return nil
 }
 
-func UpdateContact(w http.ResponseWriter, r *http.Request) {
+func (t *Contact) Update(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
-		contactID int
-		err       error
+		contactStore = models.ContactStore(t.DB)
+		err          error
 	)
-	if contactID, err = strconv.Atoi(router.Context(r).Param("id")); err != nil {
-		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-		return
+
+	if reply.Contact, err = contactStore.First(args); err != nil {
+		return err
 	}
 
-	var (
-		groupID      = getGID(r)
-		db           = getDB(r)
-		contactStore = models.ContactStore(db)
-		c            = &models.Contact{ID: uint(contactID)}
-	)
-	if err = contactStore.First(c, groupID); err != nil {
-		Fail(w, r, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
-		return
-	}
-
-	if err = Request(&views.Contact{Contact: c}, r); err != nil {
-		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
-		return
-	}
-
-	var errs = c.Validate()
-	if len(errs) > 0 {
-		logs.Debug(errs)
-		Fail(w, r, map[string]interface{}{"contact": errs}, http.StatusBadRequest)
-		return
-	}
-
-	if err = contactStore.Save(c, groupID); err != nil {
+	if err = contactStore.Save(reply.Contact, args); err != nil {
 		logs.Error(err)
-		Error(w, r, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	Success(w, r, views.Contact{Contact: c}, http.StatusOK)
+	return nil
 }
 
-func CreateContact(w http.ResponseWriter, r *http.Request) {
+func (t *Contact) Create(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
-		c = new(models.Contact)
-
-		err error
+		contactStore = models.ContactStore(t.DB)
+		err          error
 	)
-	if err := Request(&views.Contact{Contact: c}, r); err != nil {
-		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"contact": err.Error()}, http.StatusBadRequest)
-		return
-	}
 
-	errs := c.Validate()
-	if len(errs) > 0 {
-		logs.Debug(errs)
-		Fail(w, r, map[string]interface{}{"contact": errs}, http.StatusBadRequest)
-		return
-	}
-
-	var (
-		groupID      = getGID(r)
-		db           = getDB(r)
-		contactStore = models.ContactStore(db)
-	)
-	if err = contactStore.Save(c, groupID); err != nil {
+	if err = contactStore.Save(reply.Contact, args); err != nil {
 		logs.Error(err)
-		Error(w, r, err.Error(), http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	w.Header().Set("Location", fmt.Sprintf("/%s/%d", "contacts", c.ID))
-	Success(w, r, views.Contact{Contact: c}, http.StatusCreated)
+	return nil
 }
 
-func ContactCollectionOptions(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST")
-	w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,access-control-allow-methods,content-type")
-}
-
-func ContactOptions(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,access-control-allow-methods,content-type")
-}
-
-func DeleteContact(w http.ResponseWriter, r *http.Request) {
+func (t *Contact) Delete(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
-		contactID int
-		err       error
+		contactStore = models.ContactStore(t.DB)
+		err          error
 	)
-	if contactID, err = strconv.Atoi(router.Context(r).Param("id")); err != nil {
+
+	if err = contactStore.Delete(reply.Contact, args); err != nil {
 		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-		return
+		return err
 	}
 
-	var (
-		groupID      = getGID(r)
-		db           = getDB(r)
-		contactStore = models.ContactStore(db)
-		c            = &models.Contact{ID: uint(contactID)}
-	)
-	if err = contactStore.Delete(c, groupID); err != nil {
-		logs.Debug(err)
-		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/plain")
-	Success(w, r, nil, http.StatusNoContent)
+	return nil
 }

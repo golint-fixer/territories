@@ -1,22 +1,20 @@
 package main
 
 import (
+	"log"
+	"net"
 	"net/http"
+	"net/rpc"
 	"os"
 	"runtime"
-	"strconv"
 
 	"github.com/codegangsta/cli"
 	"github.com/jinzhu/gorm"
-	"github.com/quorumsco/application"
 	"github.com/quorumsco/cmd"
 	"github.com/quorumsco/contacts/controllers"
 	"github.com/quorumsco/contacts/models"
 	"github.com/quorumsco/databases"
-	"github.com/quorumsco/gojimux"
-	"github.com/quorumsco/jsonapi"
 	"github.com/quorumsco/logs"
-	"github.com/quorumsco/router"
 	"github.com/quorumsco/settings"
 )
 
@@ -61,8 +59,8 @@ func serve(ctx *cli.Context) error {
 	}
 	logs.Debug("database type: %s", dialect)
 
-	var app = application.New()
-	if app.Components["DB"], err = databases.InitGORM(dialect, args); err != nil {
+	var db *gorm.DB
+	if db, err = databases.InitGORM(dialect, args); err != nil {
 		logs.Critical(err)
 		os.Exit(1)
 	}
@@ -70,47 +68,13 @@ func serve(ctx *cli.Context) error {
 	logs.Debug("connected to %s", args)
 
 	if config.Migrate() {
-		app.Components["DB"].(*gorm.DB).AutoMigrate(models.Models()...)
+		db.AutoMigrate(models.Models()...)
 		logs.Debug("database migrated successfully")
 	}
 
-	// app.Components["Mux"] = router.New() //Mux
-	app.Components["Mux"] = gojimux.New() //Goji
-
 	if config.Debug() {
-		app.Components["DB"].(*gorm.DB).LogMode(true)
-		app.Use(router.Logger)
+		db.LogMode(true)
 	}
-
-	app.Use(app.Apply)
-	app.Use(setGID)
-	app.Use(cors)
-
-	app.Post("/contacts", controllers.CreateContact)
-	app.Options("/contacts", controllers.ContactCollectionOptions)
-	app.Get("/contacts", controllers.RetrieveContactCollection)
-
-	app.Get("/contacts/:id", controllers.RetrieveContact)
-	app.Patch("/contacts/:id", controllers.UpdateContact)
-	app.Options("/contacts/:id", controllers.ContactOptions)
-	app.Delete("/contacts/:id", controllers.DeleteContact)
-
-	app.Post("/contacts/:id/notes", controllers.CreateNote)
-	app.Get("/contacts/:id/notes", controllers.RetrieveNoteCollection)
-	app.Get("/contacts/:id/notes/:note_id", controllers.RetrieveNoteById)
-	app.Delete("/contacts/:id/notes/:note_id", controllers.DeleteNote)
-
-	app.Get("/contacts/:id/tags", controllers.RetrieveTagCollection)
-	app.Post("/contacts/:id/tags", controllers.CreateTag)
-	app.Get("/contacts/:id/tags/:tag_id", controllers.RetrieveTagById)
-	app.Delete("/contacts/:id/tags/:tag_id", controllers.DeleteTag)
-
-	app.Get("/missions", controllers.RetrieveMissionCollection)
-	app.Post("/missions", controllers.CreateMission)
-	app.Patch("/missions/:mission_id", controllers.UpdateMission)
-	app.Get("/missions/:mission_id", controllers.RetrieveMissionById)
-	app.Delete("missions/:mission_id", controllers.DeleteMission)
-	app.Get("/missions/:mission_id/contacts", controllers.RetrieveContactsByMission)
 
 	var server settings.Server
 	server, err = config.Server()
@@ -118,41 +82,15 @@ func serve(ctx *cli.Context) error {
 		logs.Critical(err)
 		os.Exit(1)
 	}
-	return app.Serve(server.String())
-}
 
-func cors(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Headers", "access-control-allow-origin,content-type")
-		h.ServeHTTP(w, r)
+	rpc.Register(&controllers.Contact{DB: db})
+	rpc.Register(&controllers.Tag{DB: db})
+	rpc.HandleHTTP()
+
+	l, e := net.Listen("tcp", server.String())
+	if e != nil {
+		log.Fatal("listen error:", e)
 	}
-	return http.HandlerFunc(fn)
-}
-
-func setGID(h http.Handler) http.Handler {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		var (
-			res     int
-			groupID uint
-			err     error
-
-			query = r.URL.Query()
-		)
-		uid := query.Get("group_id")
-		if uid == "" {
-			jsonapi.Fail(w, r, map[string]string{"group_id": "missing required get parameter"}, http.StatusBadRequest)
-			return
-		}
-		res, err = strconv.Atoi(uid)
-		if err != nil {
-			logs.Error(err)
-			jsonapi.Error(w, r, err.Error(), http.StatusBadRequest)
-			return
-		}
-		groupID = uint(res)
-		router.Context(r).Env["GroupID"] = groupID
-		h.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(fn)
+	logs.Info("Listening on " + server.String())
+	return http.Serve(l, nil)
 }

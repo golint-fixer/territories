@@ -49,6 +49,16 @@ type Contact struct {
 	Tags    []Tag    `json:"tags,omitempty" gorm:"many2many:contact_tags;"`
 }
 
+type ContactArgs struct {
+	GroupID uint
+	Contact *Contact
+}
+
+type ContactReply struct {
+	Contact  *Contact
+	Contacts []Contact
+}
+
 func (c *Contact) Validate() map[string]string {
 	var errs = make(map[string]string)
 
