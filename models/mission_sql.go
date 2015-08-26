@@ -1,53 +1,56 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"errors"
+
+	"github.com/jinzhu/gorm"
+)
 
 type MissionSQL struct {
 	DB *gorm.DB
 }
 
-func (s *MissionSQL) FindContactByMission(m *Mission) ([]Contact, error) {
-	var contacts []Contact
-	s.DB.Model(m).Related(new([]Contact), "Contacts").Find(&contacts)
-
-	if s.DB.Error != nil {
-		return make([]Contact, 0), nil
+func (s *MissionSQL) Save(m *Mission, args MissionArgs) error {
+	if m == nil {
+		return errors.New("save: mission is nil")
 	}
 
-	return contacts, s.DB.Error
-}
-
-func (s *MissionSQL) SaveMission(m *Mission) error {
 	if m.ID == 0 {
-		s.DB.Model(m).Related(new([]Contact), "Contacts").Save(m)
-
-		return s.DB.Error
+		return s.DB.Save(m).Error
 	}
 
-	s.DB.Model(m).Related(new([]Contact), "Contacts").Update(m)
-
-	return s.DB.Error
+	return s.DB.Update(m).Error
 }
 
-func (s *MissionSQL) DeleteMission(m *Mission) error {
-	s.DB.Model(m).Related(new([]Contact), "Contacts").Delete(m)
+func (s *MissionSQL) Delete(m *Mission, args MissionArgs) error {
+	if m == nil {
+		return errors.New("save: mission is nil")
+	}
 
-	return s.DB.Error
+	return s.DB.Delete(m).Error
 }
 
-func (s *MissionSQL) FindMissions(m Mission) ([]Mission, error) {
+func (s *MissionSQL) Find(args MissionArgs) ([]Mission, error) {
 	var missions []Mission
-	s.DB.Model(m).Related(new([]Contact), "Contacts").Find(&missions)
 
-	if s.DB.Error != nil {
-		return make([]Mission, 0), nil
+	err := s.DB.Find(&missions).Error
+
+	if err != nil {
+		return nil, err
 	}
 
-	return missions, s.DB.Error
+	return missions, nil
 }
 
-func (s *MissionSQL) FindMissionById(m *Mission) error {
-	s.DB.Model(m).Related(new([]Contact), "Contacts").Find(m)
+func (s *MissionSQL) First(args MissionArgs) (*Mission, error) {
+	var m Mission
 
-	return s.DB.Error
+	if err := s.DB.Where(args.Mission).First(&m).Error; err != nil {
+		if err == gorm.RecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &m, nil
 }

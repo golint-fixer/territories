@@ -24,6 +24,22 @@ func (t *Contact) RetrieveCollection(args models.ContactArgs, reply *models.Cont
 	return nil
 }
 
+func (t *Contact) RetrieveCollectionByMission(args models.ContactArgs, reply *models.ContactReply) error {
+	var (
+		err error
+
+		contactStore = models.ContactStore(t.DB)
+		m            = models.Mission{ID: args.MissionID, GroupID: args.Contact.GroupID}
+	)
+
+	if reply.Contacts, err = contactStore.FindByMission(&m, args); err != nil {
+		logs.Error(err)
+		return err
+	}
+
+	return nil
+}
+
 func (t *Contact) Retrieve(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
 		contactStore = models.ContactStore(t.DB)
@@ -48,7 +64,7 @@ func (t *Contact) Update(args models.ContactArgs, reply *models.ContactReply) er
 		return err
 	}
 
-	if err = contactStore.Save(reply.Contact, args); err != nil {
+	if err = contactStore.Save(args.Contact, args); err != nil {
 		logs.Error(err)
 		return err
 	}
@@ -62,7 +78,7 @@ func (t *Contact) Create(args models.ContactArgs, reply *models.ContactReply) er
 		err          error
 	)
 
-	if err = contactStore.Save(reply.Contact, args); err != nil {
+	if err = contactStore.Save(args.Contact, args); err != nil {
 		logs.Error(err)
 		return err
 	}
@@ -76,7 +92,7 @@ func (t *Contact) Delete(args models.ContactArgs, reply *models.ContactReply) er
 		err          error
 	)
 
-	if err = contactStore.Delete(reply.Contact, args); err != nil {
+	if err = contactStore.Delete(args.Contact, args); err != nil {
 		logs.Debug(err)
 		return err
 	}

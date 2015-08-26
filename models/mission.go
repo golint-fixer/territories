@@ -10,3 +10,12 @@ type Mission struct {
 
 	Contacts []Contact `json:"contacts,omitempty" gorm:"many2many:mission_contacts;"`
 }
+
+type MissionArgs struct {
+	Mission *Mission
+}
+
+type MissionReply struct {
+	Mission  *Mission
+	Missions []Mission
+}

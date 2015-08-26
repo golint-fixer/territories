@@ -7,6 +7,7 @@ type ContactDS interface {
 	Delete(*Contact, ContactArgs) error
 	First(ContactArgs) (*Contact, error)
 	Find(ContactArgs) ([]Contact, error)
+	FindByMission(*Mission, ContactArgs) ([]Contact, error)
 
 	// FindNotes(*Contact, *ContactArgs) error
 	// FindTags(*Contact) error

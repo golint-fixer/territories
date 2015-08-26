@@ -50,8 +50,8 @@ type Contact struct {
 }
 
 type ContactArgs struct {
-	GroupID uint
-	Contact *Contact
+	MissionID uint
+	Contact   *Contact
 }
 
 type ContactReply struct {

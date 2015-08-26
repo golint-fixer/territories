@@ -1,5 +1,11 @@
 package controllers
 
+import "github.com/jinzhu/gorm"
+
+type Mission struct {
+	DB *gorm.DB
+}
+
 // import . "github.com/quorumsco/jsonapi"
 
 // func RetrieveContactsByMission(w http.ResponseWriter, r *http.Request) {

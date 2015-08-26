@@ -1,45 +1,63 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"errors"
+
+	"github.com/jinzhu/gorm"
+)
 
 type ContactSQL struct {
 	DB *gorm.DB
 }
 
 func (s *ContactSQL) Save(c *Contact, args ContactArgs) error {
-	c.GroupID = args.GroupID
-	if c.ID == 0 {
-		s.DB.Create(c)
-
-		return s.DB.Error
+	if c == nil {
+		return errors.New("save: contact is nil")
 	}
 
-	s.DB.Where("group_id = ?", args.GroupID).Save(c)
+	c.GroupID = args.Contact.GroupID
+	if c.ID == 0 {
+		return s.DB.Create(c).Error
+	}
 
-	return s.DB.Error
+	return s.DB.Where("group_id = ?", args.Contact.GroupID).Save(c).Error
 }
 
 func (s *ContactSQL) Delete(c *Contact, args ContactArgs) error {
-	s.DB.Where("group_id = ?", args.GroupID).Delete(c)
+	if c == nil {
+		return errors.New("delete: contact is nil")
+	}
 
-	return s.DB.Error
+	return s.DB.Where("group_id = ?", args.Contact.GroupID).Delete(c).Error
 }
 
 func (s *ContactSQL) First(args ContactArgs) (*Contact, error) {
 	var c Contact
 
-	s.DB.Where("group_id = ?", args.GroupID).Find(&c)
+	if err := s.DB.Where(args.Contact).First(&c).Error; err != nil {
+		if err == gorm.RecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
 
-	return &c, s.DB.Error
+	return &c, nil
 }
 
 func (s *ContactSQL) Find(args ContactArgs) ([]Contact, error) {
 	var contacts []Contact
 
-	s.DB.Where("group_id = ?", args.GroupID).Find(&contacts)
-	if s.DB.Error != nil {
-		return nil, s.DB.Error
+	err := s.DB.Where("group_id = ?", args.Contact.GroupID).Find(&contacts).Error
+	if err != nil {
+		return nil, err
 	}
 
 	return contacts, nil
+}
+
+func (s *ContactSQL) FindByMission(m *Mission, args ContactArgs) ([]Contact, error) {
+	var contacts []Contact
+	err := s.DB.Model(m).Related(&contacts, "Contacts").Error
+
+	return contacts, err
 }
