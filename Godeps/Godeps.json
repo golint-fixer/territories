@@ -1,29 +1,29 @@
 {
 	"ImportPath": "github.com/quorumsco/contacts",
-	"GoVersion": "go1.4.2",
+	"GoVersion": "go1.5",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/asaskevich/govalidator",
-			"Comment": "v2",
-			"Rev": "5fe52de9fffecc6df9539fcfd6ac6ae6aa6fc626"
+			"Comment": "v2-18-g0ac1814",
+			"Rev": "0ac181471c45e5153dd36527926981230f51dfbd"
 		},
 		{
 			"ImportPath": "github.com/codegangsta/cli",
-			"Comment": "1.2.0-137-gbca61c4",
-			"Rev": "bca61c476e3c752594983e4c9bcd5f62fb09f157"
+			"Comment": "1.2.0-139-g142e6cd",
+			"Rev": "142e6cd241a4dfbf7f07a018f1f8225180018da4"
 		},
 		{
 			"ImportPath": "github.com/fatih/color",
-			"Comment": "v0.1",
-			"Rev": "1b35f289c47d5c73c398cea8e006b7bcb6234a96"
+			"Comment": "v0.1-8-g76d4231",
+			"Rev": "76d423163af754ff6423d2d9be0057fbf03c57c2"
 		},
 		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
-			"Comment": "v1.2-112-gfb72997",
-			"Rev": "fb7299726d2e68745a8805b14f2ff44b5c2cfa84"
+			"Comment": "v1.2-118-g3dd7008",
+			"Rev": "3dd7008ac1529aca1bcd8a9db75228a71ba23cac"
 		},
 		{
 			"ImportPath": "github.com/iogo-framework/logs",
@@ -31,25 +31,30 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "5663048f137b961f9b1bac6a10227096aa36b0bf"
+			"Rev": "1d5f5f43f37a19d452a920447108de6e9e7b5e96"
 		},
 		{
 			"ImportPath": "github.com/jmoiron/sqlx",
-			"Comment": "sqlx-v1.1-18-g56b62f2",
-			"Rev": "56b62f29e9936b8fc0db14ed01297f88ba518333"
+			"Comment": "sqlx-v1.1-44-gae682dc",
+			"Rev": "ae682dc5c71d087ef97d506ec543320fdd7b0ff1"
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-56-gdc50b6a",
-			"Rev": "dc50b6ad2d3ee836442cf3389009c7cd1e64bb43"
+			"Comment": "go1.0-cutoff-59-gb269bd0",
+			"Rev": "b269bd035a727d6c1081f76e7a239a1b00674c40"
+		},
+		{
+			"ImportPath": "github.com/mattn/go-isatty",
+			"Rev": "7fcbc72f853b92b5720db4a6b8482be612daef24"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
-			"Rev": "b4142c444a8941d0d92b0b7103a24df9cd815e42"
+			"Comment": "v1.0.0-9-g897b880",
+			"Rev": "897b8800a7d1a93518b87c00e5d1c5d7476f3701"
 		},
 		{
-			"ImportPath": "github.com/quorumsco/application",
-			"Rev": "c03629cc2d26c78fd4367a3b06ed48d1a42c5d7f"
+			"ImportPath": "github.com/qor/inflection",
+			"Rev": "45321e63b98c756df17369c027c1df89298e1288"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/cmd",
@@ -60,20 +65,8 @@
 			"Rev": "4fc50e53077432246684f9b766a6f3f6a81b8962"
 		},
 		{
-			"ImportPath": "github.com/quorumsco/gojimux",
-			"Rev": "2252460f8a38a594ee0e0e136ebe74576289da94"
-		},
-		{
-			"ImportPath": "github.com/quorumsco/jsonapi",
-			"Rev": "cf832352800b133ea301f10bcaccf30406f56b59"
-		},
-		{
 			"ImportPath": "github.com/quorumsco/logs",
 			"Rev": "0247b60e20020bc43a369063d97b55493ec673c1"
-		},
-		{
-			"ImportPath": "github.com/quorumsco/router",
-			"Rev": "0cc02b61baea488c5be99ead4e80f80b1f4bf6e7"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/settings",
@@ -81,12 +74,7 @@
 		},
 		{
 			"ImportPath": "github.com/shiena/ansicolor",
-			"Rev": "264b0566801533988151a23fc5f75d66d831d6ae"
-		},
-		{
-			"ImportPath": "github.com/zenazn/goji/web",
-			"Comment": "v0.9.0-25-gf11b3b8",
-			"Rev": "f11b3b82931df3c540a0a960b6b1de60094d33d6"
+			"Rev": "a5e2b567a4dd6cc74545b8a4f27c9d63b9e7735b"
 		}
 	]
 }

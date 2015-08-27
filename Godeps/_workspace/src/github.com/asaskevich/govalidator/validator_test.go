@@ -617,6 +617,7 @@ func TestIsURL(t *testing.T) {
 		{"https://pbs.twimg.com/profile_images/560826135676588032/j8fWrmYY_normal.jpeg", true},
 		{"http://me.example.com", true},
 		{"http://www.me.example.com", true},
+		{"https://farm6.static.flickr.com", true},
 	}
 	for _, test := range tests {
 		actual := IsURL(test.param)
@@ -1570,7 +1571,7 @@ func TestIsMongoID(t *testing.T) {
 	}
 }
 
-func TestByteLegnth(t *testing.T) {
+func TestByteLength(t *testing.T) {
 	t.Parallel()
 
 	var tests = []struct {
@@ -1588,6 +1589,32 @@ func TestByteLegnth(t *testing.T) {
 		actual := ByteLength(test.value, test.min, test.max)
 		if actual != test.expected {
 			t.Errorf("Expected ByteLength(%s, %s, %s) to be %v, got %v", test.value, test.min, test.max, test.expected, actual)
+		}
+	}
+}
+
+func TestStringLength(t *testing.T) {
+	t.Parallel()
+
+	var tests = []struct {
+		value    string
+		min      string
+		max      string
+		expected bool
+	}{
+		{"123456", "0", "100", true},
+		{"1239999", "0", "0", false},
+		{"1239asdfasf99", "100", "200", false},
+		{"1239999asdff29", "10", "30", true},
+		{"あいうえお", "0", "5", true},
+		{"あいうえおか", "0", "5", false},
+		{"あいうえお", "0", "0", false},
+		{"あいうえ", "5", "10", false},
+	}
+	for _, test := range tests {
+		actual := StringLength(test.value, test.min, test.max)
+		if actual != test.expected {
+			t.Errorf("Expected StringLength(%s, %s, %s) to be %v, got %v", test.value, test.min, test.max, test.expected, actual)
 		}
 	}
 }
@@ -1634,10 +1661,97 @@ type LengthStruct struct {
 	Length string `valid:"length(10|20)"`
 }
 
+type StringLengthStruct struct {
+	Length string `valid:"stringlength(10|20)"`
+}
+
 type Post struct {
 	Title    string `valid:"alpha,required"`
 	Message  string `valid:"ascii"`
 	AuthorIP string `valid:"ipv4"`
+}
+
+type MissingValidationDeclationStruct struct {
+	Name  string ``
+	Email string `valid:"required,email"`
+}
+
+type FieldsRequiredByDefaultButExemptStruct struct {
+	Name  string `valid:"-"`
+	Email string `valid:"email"`
+}
+
+type FieldsRequiredByDefaultButExemptOrOptionalStruct struct {
+	Name  string `valid:"-"`
+	Email string `valid:"optional,email"`
+}
+
+func TestValidateMissingValidationDeclationStruct(t *testing.T) {
+	var tests = []struct {
+		param    MissingValidationDeclationStruct
+		expected bool
+	}{
+		{MissingValidationDeclationStruct{}, false},
+		{MissingValidationDeclationStruct{Name: "TEST", Email: "test@example.com"}, false},
+	}
+	SetFieldsRequiredByDefault(true)
+	for _, test := range tests {
+		actual, err := ValidateStruct(test.param)
+		if actual != test.expected {
+			t.Errorf("Expected ValidateStruct(%q) to be %v, got %v", test.param, test.expected, actual)
+			if err != nil {
+				t.Errorf("Got Error on ValidateStruct(%q): %s", test.param, err)
+			}
+		}
+	}
+	SetFieldsRequiredByDefault(false)
+}
+
+func TestFieldsRequiredByDefaultButExemptStruct(t *testing.T) {
+	var tests = []struct {
+		param    FieldsRequiredByDefaultButExemptStruct
+		expected bool
+	}{
+		{FieldsRequiredByDefaultButExemptStruct{}, false},
+		{FieldsRequiredByDefaultButExemptStruct{Name: "TEST"}, false},
+		{FieldsRequiredByDefaultButExemptStruct{Email: ""}, false},
+		{FieldsRequiredByDefaultButExemptStruct{Email: "test@example.com"}, true},
+	}
+	SetFieldsRequiredByDefault(true)
+	for _, test := range tests {
+		actual, err := ValidateStruct(test.param)
+		if actual != test.expected {
+			t.Errorf("Expected ValidateStruct(%q) to be %v, got %v", test.param, test.expected, actual)
+			if err != nil {
+				t.Errorf("Got Error on ValidateStruct(%q): %s", test.param, err)
+			}
+		}
+	}
+	SetFieldsRequiredByDefault(false)
+}
+
+func TestFieldsRequiredByDefaultButExemptOrOptionalStruct(t *testing.T) {
+	var tests = []struct {
+		param    FieldsRequiredByDefaultButExemptOrOptionalStruct
+		expected bool
+	}{
+		{FieldsRequiredByDefaultButExemptOrOptionalStruct{}, true},
+		{FieldsRequiredByDefaultButExemptOrOptionalStruct{Name: "TEST"}, true},
+		{FieldsRequiredByDefaultButExemptOrOptionalStruct{Email: ""}, true},
+		{FieldsRequiredByDefaultButExemptOrOptionalStruct{Email: "test@example.com"}, true},
+		{FieldsRequiredByDefaultButExemptOrOptionalStruct{Email: "test@example"}, false},
+	}
+	SetFieldsRequiredByDefault(true)
+	for _, test := range tests {
+		actual, err := ValidateStruct(test.param)
+		if actual != test.expected {
+			t.Errorf("Expected ValidateStruct(%q) to be %v, got %v", test.param, test.expected, actual)
+			if err != nil {
+				t.Errorf("Got Error on ValidateStruct(%q): %s", test.param, err)
+			}
+		}
+	}
+	SetFieldsRequiredByDefault(false)
 }
 
 func TestValidateNegationStruct(t *testing.T) {
@@ -1673,6 +1787,31 @@ func TestLengthStruct(t *testing.T) {
 		{LengthStruct{"11111"}, false},
 		{LengthStruct{"11111111111111111110000000000000000"}, false},
 		{LengthStruct{"11dfffdf0099"}, true},
+	}
+
+	for _, test := range tests {
+		actual, err := ValidateStruct(test.param)
+		if actual != test.expected {
+			t.Errorf("Expected ValidateStruct(%q) to be %v, got %v", test.param, test.expected, actual)
+			if err != nil {
+				t.Errorf("Got Error on ValidateStruct(%q): %s", test.param, err)
+			}
+		}
+	}
+}
+
+func TestStringLengthStruct(t *testing.T) {
+	var tests = []struct {
+		param    interface{}
+		expected bool
+	}{
+		{StringLengthStruct{"11111"}, false},
+		{StringLengthStruct{"11111111111111111110000000000000000"}, false},
+		{StringLengthStruct{"11dfffdf0099"}, true},
+		{StringLengthStruct{"あいうえお"}, false},
+		{StringLengthStruct{"あいうえおかきくけこ"}, true},
+		{StringLengthStruct{"あいうえおかきくけこさしすせそたちつてと"}, true},
+		{StringLengthStruct{"あいうえおかきくけこさしすせそたちつてとな"}, false},
 	}
 
 	for _, test := range tests {
@@ -1724,6 +1863,105 @@ func TestValidateStruct(t *testing.T) {
 	}
 }
 
+type testByteArray [8]byte
+type testByteMap map[byte]byte
+type testByteSlice []byte
+
+func TestRequired(t *testing.T) {
+
+	testString := "foobar"
+	var tests = []struct {
+		param    interface{}
+		expected bool
+	}{
+		{
+			struct {
+				Pointer *string `valid:"required"`
+			}{},
+			false,
+		},
+		{
+			struct {
+				Pointer *string `valid:"required"`
+			}{
+				Pointer: &testString,
+			},
+			true,
+		},
+		{
+			struct {
+				Addr Address `valid:"required"`
+			}{},
+			false,
+		},
+		{
+			struct {
+				Addr Address `valid:"required"`
+			}{
+				Addr: Address{"", "123"},
+			},
+			true,
+		},
+		{
+			struct {
+				Pointer *Address `valid:"required"`
+			}{},
+			false,
+		},
+		{
+			struct {
+				Pointer *Address `valid:"required"`
+			}{
+				Pointer: &Address{"", "123"},
+			},
+			true,
+		},
+		{
+			struct {
+				TestByteArray testByteArray `valid:"required"`
+			}{},
+			false,
+		},
+		{
+			struct {
+				TestByteArray testByteArray `valid:"required"`
+			}{
+				testByteArray{},
+			},
+			false,
+		},
+		{
+			struct {
+				TestByteArray testByteArray `valid:"required"`
+			}{
+				testByteArray{'1', '2', '3', '4', '5', '6', '7', 'A'},
+			},
+			true,
+		},
+		{
+			struct {
+				TestByteMap testByteMap `valid:"required"`
+			}{},
+			false,
+		},
+		{
+			struct {
+				TestByteSlice testByteSlice `valid:"required"`
+			}{},
+			false,
+		},
+	}
+	for _, test := range tests {
+		actual, err := ValidateStruct(test.param)
+		if actual != test.expected {
+			t.Errorf("Expected ValidateStruct(%q) to be %v, got %v", test.param, test.expected, actual)
+			if err != nil {
+				t.Errorf("Got Error on ValidateStruct(%q): %s", test.param, err)
+			}
+		}
+	}
+}
+
 func TestErrorByField(t *testing.T) {
 	t.Parallel()
 
@@ -1739,6 +1977,64 @@ func TestErrorByField(t *testing.T) {
 	}
 	post := &Post{"My123", "duck13126", "123"}
 	_, err := ValidateStruct(post)
+
+	for _, test := range tests {
+		actual := ErrorByField(err, test.param)
+		if actual != test.expected {
+			t.Errorf("Expected ErrorByField(%q) to be %v, got %v", test.param, test.expected, actual)
+		}
+	}
+}
+
+func TestErrorsByField(t *testing.T) {
+	t.Parallel()
+
+	var tests = []struct {
+		param    string
+		expected string
+	}{
+		{"Title", "My123 does not validate as alpha"},
+		{"AuthorIP", "123 does not validate as ipv4"},
+	}
+	post := &Post{Title: "My123", Message: "duck13126", AuthorIP: "123"}
+	_, err := ValidateStruct(post)
+	errs := ErrorsByField(err)
+	if len(errs) != 2 {
+		t.Errorf("There should only be 2 errors but got %v", len(errs))
+	}
+
+	for _, test := range tests {
+		if actual, ok := errs[test.param]; !ok || actual != test.expected {
+			t.Errorf("Expected ErrorsByField(%q) to be %v, got %v", test.param, test.expected, actual)
+		}
+	}
+}
+
+func TestValidateStructPointers(t *testing.T) {
+	// Struct which uses pointers for values
+	type UserWithPointers struct {
+		Name         *string `valid:"-"`
+		Email        *string `valid:"email"`
+		FavoriteFood *string `valid:"length(0|32)"`
+		Nerd         *bool   `valid:"-"`
+	}
+
+	var tests = []struct {
+		param    string
+		expected string
+	}{
+		{"Name", ""},
+		{"Email", "invalid does not validate as email"},
+		{"FavoriteFood", ""},
+		{"Nerd", ""},
+	}
+
+	name := "Herman"
+	email := "invalid"
+	food := "Pizza"
+	nerd := true
+	user := &UserWithPointers{&name, &email, &food, &nerd}
+	_, err := ValidateStruct(user)
 
 	for _, test := range tests {
 		actual := ErrorByField(err, test.param)

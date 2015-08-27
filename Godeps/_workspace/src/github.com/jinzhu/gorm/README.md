@@ -1,5 +1,7 @@
 # GORM
 
+[![Join the chat at https://gitter.im/jinzhu/gorm](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jinzhu/gorm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The fantastic ORM library for Golang, aims to be developer friendly.
 
 [![wercker status](https://app.wercker.com/status/0cb7bb1039e21b74f8274941428e0921/s/master "wercker status")](https://app.wercker.com/project/bykey/0cb7bb1039e21b74f8274941428e0921)
@@ -27,6 +29,14 @@ The fantastic ORM library for Golang, aims to be developer friendly.
 ```
 go get -u github.com/jinzhu/gorm
 ```
+
+## Documentation 
+
+[![GoDoc](https://godoc.org/github.com/jinzhu/gorm?status.svg)](https://godoc.org/github.com/jinzhu/gorm)
+
+`go doc` format documentation for this project can be viewed online without
+installing the package by using the GoDoc page at:
+http://godoc.org/github.com/jinzhu/gorm
 
 ## Define Models (Structs)
 
@@ -136,12 +146,20 @@ db.SingularTable(true)
 ```go
 // Create table
 db.CreateTable(&User{})
+db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&User{})
 
 // Drop table
 db.DropTable(&User{})
 
+// ModifyColumn
+db.Model(&User{}).ModifyColumn("description", "text")
+
+// DropColumn
+db.Model(&User{}).DropColumn("description")
+
 // Automating Migration
 db.AutoMigrate(&User{})
+db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&User{})
 db.AutoMigrate(&User{}, &Product{}, &Order{})
 // Feel free to change your struct, AutoMigrate will keep your database up-to-date.
 // AutoMigrate will ONLY add *new columns* and *new indexes*,
@@ -1124,7 +1142,7 @@ type Product struct {
 // 2nd param : destination table(id)
 // 3rd param : ONDELETE
 // 4th param : ONUPDATE
-db.Model(&User{}).AddForeignKey("role_id", "roles", "CASCADE", "RESTRICT")
+db.Model(&User{}).AddForeignKey("city_id", "cities(id)", "RESTRICT", "RESTRICT")
 
 // Add index
 db.Model(&User{}).AddIndex("idx_user_name", "name")
@@ -1200,12 +1218,7 @@ db.Where("email = ?", "x@example.org").Attrs(User{RegisteredIp: "111.111.111.111
 ```
 
 ## TODO
-* db.Select("Languages", "Name").Update(&user)
-  db.Omit("Languages").Update(&user)
-* Auto migrate indexes
 * Github Pages
-* AlertColumn, DropColumn
-* R/W Splitting, Validation
 
 # Author
 
