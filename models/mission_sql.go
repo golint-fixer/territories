@@ -33,7 +33,7 @@ func (s *MissionSQL) Delete(m *Mission, args MissionArgs) error {
 func (s *MissionSQL) Find(args MissionArgs) ([]Mission, error) {
 	var missions []Mission
 
-	err := s.DB.Find(&missions).Error
+	err := s.DB.Where(args.Mission).Find(&missions).Error
 
 	if err != nil {
 		return nil, err
