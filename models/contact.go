@@ -15,6 +15,8 @@ type Position struct {
 }
 
 type Address struct {
+	Position
+
 	ID uint
 
 	HouseNumber string
@@ -27,8 +29,6 @@ type Address struct {
 	Addition    string // Complément d'adresse
 
 	PollingStation string // Code bureau de vote
-
-	Position
 }
 
 type Contact struct {
@@ -41,6 +41,9 @@ type Contact struct {
 	Mail        *string    `json:"mail,omitempty"`
 	Phone       *string    `json:"phone,omitempty"`
 	Mobile      *string    `json:"mobile,omitempty"`
+
+	Participation *int `json:"participation,omitempty"`
+	Support       *int `json:"support,omitempty"`
 
 	GroupID uint `sql:"not null" db:"group_id" json:"-"`
 

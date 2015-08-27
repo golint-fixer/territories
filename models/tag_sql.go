@@ -10,20 +10,14 @@ func (s *TagSQL) Save(t *Tag, args TagArgs) error {
 	var c = &Contact{ID: args.ContactID}
 
 	if t.ID == 0 {
-		s.DB.Debug().Model(c).Association("Tags").Append(t)
-
-		return s.DB.Error
+		return s.DB.Debug().Model(c).Association("Tags").Append(t).Error
 	}
 
-	s.DB.Model(c).Association("Tags").Replace(t)
-
-	return s.DB.Error
+	return s.DB.Model(c).Association("Tags").Replace(t).Error
 }
 
 func (s *TagSQL) Delete(t *Tag, args TagArgs) error {
-	s.DB.Model(&Contact{ID: args.ContactID}).Association("Tags").Delete(t)
-
-	return s.DB.Error
+	return s.DB.Model(&Contact{ID: args.ContactID}).Association("Tags").Delete(t).Error
 }
 
 func (s *TagSQL) Find(args TagArgs) ([]Tag, error) {
@@ -32,16 +26,10 @@ func (s *TagSQL) Find(args TagArgs) ([]Tag, error) {
 		c    = &Contact{ID: args.ContactID}
 	)
 
-	s.DB.Model(c).Association("Tags").Find(&tags)
-	if s.DB.Error != nil {
-		return nil, s.DB.Error
+	err := s.DB.Model(c).Association("Tags").Find(&tags).Error
+	if err != nil {
+		return nil, err
 	}
 
-	return tags, s.DB.Error
+	return tags, nil
 }
-
-// func (s *TagSQL) FindTagById(t *Tag, c Contact) error {
-// 	s.DB.Model(&c).Association("Tags").Find(t)
-//
-// 	return s.DB.Error
-// }
