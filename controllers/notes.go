@@ -1,140 +1,71 @@
 package controllers
 
-// import . "github.com/quorumsco/jsonapi"
+import (
+	"github.com/jinzhu/gorm"
+	"github.com/quorumsco/contacts/models"
+	"github.com/quorumsco/logs"
+)
 
-// func RetrieveNoteById(w http.ResponseWriter, r *http.Request) {
-// 	var (
-// 		contactID int
-// 		err       error
-// 	)
-// 	contactID, err = strconv.Atoi(router.Context(r).Param("id"))
-// 	if err != nil {
-// 		logs.Debug(err)
-// 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	var noteID int
-// 	noteID, err = strconv.Atoi(router.Context(r).Param("note_id"))
-// 	if err != nil {
-// 		logs.Debug(err)
-// 		Fail(w, r, map[string]interface{}{"note_id": "not integer"}, http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	var n = new(models.Note)
-//
-// 	var (
-// 		getID     = getGID(r)
-// 		db        = getDB(r)
-// 		noteStore = models.NoteStore(db)
-// 	)
-// 	err = noteStore.FindById(n, getID, uint(noteID), uint(contactID))
-// 	if err != nil {
-// 		logs.Error(err)
-// 		Error(w, r, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-//
-// 	Success(w, r, views.Note{Note: n}, http.StatusOK)
-// }
-//
-// func RetrieveNoteCollection(w http.ResponseWriter, r *http.Request) {
-// 	var (
-// 		contactID int
-// 		err       error
-// 	)
-// 	contactID, err = strconv.Atoi(router.Context(r).Param("id"))
-// 	if err != nil {
-// 		logs.Debug(err)
-// 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	var c = models.Contact{
-// 		ID: uint(contactID),
-// 	}
-//
-// 	var (
-// 		getID        = getGID(r)
-// 		db           = getDB(r)
-// 		contactStore = models.ContactStore(db)
-// 	)
-// 	err = contactStore.FindNotes(&c, getID)
-// 	if err != nil {
-// 		logs.Error(err)
-// 		Error(w, r, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-//
-// 	Success(w, r, views.Notes{Notes: c.Notes}, http.StatusOK)
-// }
-//
-// func CreateNote(w http.ResponseWriter, r *http.Request) {
-// 	var (
-// 		contactID int
-// 		err       error
-//
-// 		n = new(models.Note)
-// 	)
-// 	contactID, err = strconv.Atoi(router.Context(r).Param("id"))
-// 	if err != nil {
-// 		logs.Debug(err)
-// 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	if err = Request(&views.Note{Note: n}, r); err != nil {
-// 		logs.Debug(err)
-// 		Fail(w, r, map[string]interface{}{"note": err.Error()}, http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	var (
-// 		getID     = getGID(r)
-// 		db        = getDB(r)
-// 		noteStore = models.NoteStore(db)
-// 	)
-// 	if err = noteStore.Save(n, getID, uint(contactID)); err != nil {
-// 		logs.Error(err)
-// 		Error(w, r, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-//
-// 	w.Header().Set("Location", fmt.Sprintf("/%s/%d", "notes", n.ID))
-// 	Success(w, r, views.Note{Note: n}, http.StatusCreated)
-// }
-//
-// func DeleteNote(w http.ResponseWriter, r *http.Request) {
-// 	var (
-// 		contactID int
-// 		err       error
-// 	)
-// 	if contactID, err = strconv.Atoi(router.Context(r).Param("id")); err != nil {
-// 		logs.Debug(err)
-// 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	var noteID int
-// 	if noteID, err = strconv.Atoi(router.Context(r).Param("note_id")); err != nil {
-// 		logs.Debug(err)
-// 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	var (
-// 		getID     = getGID(r)
-// 		db        = getDB(r)
-// 		noteStore = models.NoteStore(db)
-// 		n         = &models.Note{ID: uint(noteID), ContactID: uint(contactID)}
-// 	)
-// 	if err = noteStore.Delete(n, getID, uint(contactID)); err != nil {
-// 		logs.Debug(err)
-// 		Fail(w, r, map[string]interface{}{"id": "not integer"}, http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	w.Header().Set("Content-Type", "text/plain")
-// 	Success(w, r, nil, http.StatusNoContent)
-// }
+type Tag struct {
+	DB *gorm.DB
+}
+
+func (t *Note) RetrieveCollection(args models.NoteArgs, reply *models.NoteReply) error {
+	var (
+		err error
+
+		NoteStore = models.NoteStore(t.DB)
+	)
+
+	reply.Notes, err = NoteStore.Find(args)
+	if err != nil {
+		logs.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func (t *Contact) Retrieve(args models.NoteArgs, reply *models.NoteReply) error {
+	var (
+		NoteStore = models.NoteStore(t.DB)
+		err       error
+	)
+
+	if reply.Note, err = NoteStore.First(args); err != nil {
+		logs.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func (t *Note) Create(args models.NoteArgs, reply *models.NoteReply) error {
+	var (
+		err error
+
+		NoteStore = models.NoteStore(t.DB)
+	)
+
+	if err = NoteStore.Save(args.Note, args); err != nil {
+		logs.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func (t *Note) Delete(args models.NoteArgs, reply *models.NoteReply) error {
+	var (
+		err error
+
+		NoteStore = models.NoteStore(t.DB)
+	)
+
+	if err = NoteStore.Delete(args.Note, args); err != nil {
+		logs.Debug(err)
+		return err
+	}
+
+	return nil
+}
