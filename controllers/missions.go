@@ -35,6 +35,8 @@ func (t *Mission) Create(args models.MissionArgs, reply *models.MissionReply) er
 		return err
 	}
 
+	reply.Mission = args.Mission
+
 	return nil
 }
 

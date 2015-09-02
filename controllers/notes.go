@@ -6,7 +6,7 @@ import (
 	"github.com/quorumsco/logs"
 )
 
-type Tag struct {
+type Note struct {
 	DB *gorm.DB
 }
 
@@ -26,7 +26,7 @@ func (t *Note) RetrieveCollection(args models.NoteArgs, reply *models.NoteReply)
 	return nil
 }
 
-func (t *Contact) Retrieve(args models.NoteArgs, reply *models.NoteReply) error {
+func (t *Note) Retrieve(args models.NoteArgs, reply *models.NoteReply) error {
 	var (
 		NoteStore = models.NoteStore(t.DB)
 		err       error
@@ -51,6 +51,8 @@ func (t *Note) Create(args models.NoteArgs, reply *models.NoteReply) error {
 		logs.Error(err)
 		return err
 	}
+
+	reply.Note = args.Note
 
 	return nil
 }

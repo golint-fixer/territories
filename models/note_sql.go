@@ -1,47 +1,56 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"errors"
+
+	"github.com/jinzhu/gorm"
+)
 
 type NoteSQL struct {
 	DB *gorm.DB
 }
 
-func (s *NoteSQL) Save(n *Note, groupID uint, contactID uint) error {
-	n.ContactID = contactID
-	n.GroupID = groupID
+func (s *NoteSQL) Save(n *Note, args NoteArgs) error {
+	if n == nil {
+		return errors.New("save: note is nil")
+	}
+
+	n.GroupID = args.Note.GroupID
 	if n.ID == 0 {
-		s.DB.Create(n)
-
-		return s.DB.Error
+		return s.DB.Create(n).Error
 	}
 
-	s.DB.Where("group_id = ?", groupID).Where("contact_id = ?", contactID).Save(n)
-
-	return s.DB.Error
+	return s.DB.Where("group_id = ?", args.Note.GroupID).Save(n).Error
 }
 
-func (s *NoteSQL) Delete(n *Note, groupID uint, contactID uint) error {
-	n.ContactID = contactID
-	n.GroupID = groupID
-	s.DB.Where("group_id = ?", groupID).Where("contact_id = ?", contactID).Delete(n)
+func (s *NoteSQL) Delete(n *Note, args NoteArgs) error {
+	if n == nil {
+		return errors.New("delete: note is nil")
+	}
 
-	return s.DB.Error
+	return s.DB.Where("group_id = ?", args.Note.GroupID).Delete(n).Error
 }
 
-func (s *NoteSQL) FindByContact(contact Contact, groupID uint) ([]Note, error) {
+func (s *NoteSQL) First(args NoteArgs) (*Note, error) {
+	var n Note
+
+	if err := s.DB.Where(args.Note).First(&n).Error; err != nil {
+		if err == gorm.RecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &n, nil
+}
+
+func (s *NoteSQL) Find(args NoteArgs) ([]Note, error) {
 	var notes []Note
-	s.DB.Where("group_id = ?", groupID).Where("contact_id = ?", contact.ID).Find(&notes)
-	if s.DB.Error != nil {
-		return make([]Note, 0), nil
+
+	err := s.DB.Where("group_id = ?", args.Note.GroupID).Find(&notes).Error
+	if err != nil {
+		return nil, err
 	}
 
-	return notes, s.DB.Error
-}
-
-func (s *NoteSQL) FindById(n *Note, groupID uint, noteID uint, contactID uint) error {
-	n.ContactID = contactID
-	n.ID = noteID
-	s.DB.Where("group_id = ?", groupID).Where("contact_id = ?", contactID).Find(n)
-
-	return s.DB.Error
+	return notes, nil
 }

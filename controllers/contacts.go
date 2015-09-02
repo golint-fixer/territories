@@ -83,6 +83,8 @@ func (t *Contact) Create(args models.ContactArgs, reply *models.ContactReply) er
 		return err
 	}
 
+	reply.Contact = args.Contact
+
 	return nil
 }
 

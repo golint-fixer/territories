@@ -38,6 +38,8 @@ func (t *Tag) Create(args models.TagArgs, reply *models.TagReply) error {
 		return err
 	}
 
+	reply.Tag = args.Tag
+
 	return nil
 }
 

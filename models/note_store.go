@@ -3,11 +3,10 @@ package models
 import "github.com/jinzhu/gorm"
 
 type NoteDS interface {
-	Save(*Note, uint, uint) error
-	Delete(*Note, uint, uint) error
-
-	FindByContact(Contact, uint) ([]Note, error)
-	FindById(*Note, uint, uint, uint) error
+	Save(*Note, NoteArgs) error
+	Delete(*Note, NoteArgs) error
+	First(NoteArgs) (*Note, error)
+	Find(NoteArgs) ([]Note, error)
 }
 
 func NoteStore(db *gorm.DB) NoteDS {
