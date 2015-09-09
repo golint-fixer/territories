@@ -17,7 +17,9 @@ func (s *ContactSQL) Save(c *Contact, args ContactArgs) error {
 
 	c.GroupID = args.Contact.GroupID
 	if c.ID == 0 {
-		return s.DB.Create(c).Error
+		err := s.DB.Create(c).Error
+		s.DB.Last(c)
+		return err
 	}
 
 	return s.DB.Where("group_id = ?", args.Contact.GroupID).Save(c).Error
