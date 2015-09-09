@@ -84,6 +84,7 @@ func serve(ctx *cli.Context) error {
 	}
 
 	rpc.Register(&controllers.Contact{DB: db})
+	rpc.Register(&controllers.Note{DB: db})
 	rpc.Register(&controllers.Tag{DB: db})
 	rpc.Register(&controllers.Mission{DB: db})
 	rpc.HandleHTTP()
