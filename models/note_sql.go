@@ -49,7 +49,7 @@ func (s *NoteSQL) First(args NoteArgs) (*Note, error) {
 func (s *NoteSQL) Find(args NoteArgs) ([]Note, error) {
 	var notes []Note
 
-	err := s.DB.Where("group_id = ?", args.Note.GroupID).Find(&notes).Error
+	err := s.DB.Where("group_id = ?", args.Note.GroupID).Where("contact_id = ?", args.ContactID).Find(&notes).Error
 	if err != nil {
 		return nil, err
 	}
