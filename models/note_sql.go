@@ -17,7 +17,9 @@ func (s *NoteSQL) Save(n *Note, args NoteArgs) error {
 
 	n.GroupID = args.Note.GroupID
 	if n.ID == 0 {
-		return s.DB.Create(n).Error
+		err := s.DB.Create(n).Error
+		s.DB.Last(n)
+		return err
 	}
 
 	return s.DB.Where("group_id = ?", args.Note.GroupID).Save(n).Error

@@ -1,16 +1,26 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"errors"
+
+	"github.com/jinzhu/gorm"
+)
 
 type TagSQL struct {
 	DB *gorm.DB
 }
 
 func (s *TagSQL) Save(t *Tag, args TagArgs) error {
+	if t == nil {
+		return errors.New("save: tag is nil")
+	}
+
 	var c = &Contact{ID: args.ContactID}
 
 	if t.ID == 0 {
-		return s.DB.Debug().Model(c).Association("Tags").Append(t).Error
+		err := s.DB.Debug().Model(c).Association("Tags").Append(t).Error
+		s.DB.Last(t)
+		return err
 	}
 
 	return s.DB.Model(c).Association("Tags").Replace(t).Error
