@@ -41,15 +41,15 @@ type Contact struct {
 	Mail        *string    `json:"mail,omitempty"`
 	Phone       *string    `json:"phone,omitempty"`
 	Mobile      *string    `json:"mobile,omitempty"`
+	Adress      *string    `json:"adress,omitempty"`
 
 	Participation *int `json:"participation,omitempty"`
 	Support       *int `json:"support,omitempty"`
 
 	GroupID uint `sql:"not null" db:"group_id" json:"-"`
 
-	Address *Address `json:"address,omitempty"`
-	Notes   []Note   `json:"notes,omitempty"`
-	Tags    []Tag    `json:"tags,omitempty" gorm:"many2many:contact_tags;"`
+	Notes []Note `json:"notes,omitempty"`
+	Tags  []Tag  `json:"tags,omitempty" gorm:"many2many:contact_tags;"`
 }
 
 type ContactArgs struct {
