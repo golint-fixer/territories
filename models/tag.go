@@ -2,7 +2,7 @@ package models
 
 type Tag struct {
 	ID    uint   `gorm:"primary_key" json:"id"`
-	Name  string `json:"name" sql:"not null;unique"`
+	Name  string `json:"name" sql:"not null;"`
 	Color string `json:"color"`
 }
 
