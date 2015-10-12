@@ -43,8 +43,8 @@ type Contact struct {
 	Mobile      *string    `json:"mobile,omitempty"`
 	Adress      *string    `json:"adress,omitempty"`
 
-	Participation *int `json:"participation,omitempty"`
-	Support       *int `json:"support,omitempty"`
+	Vote    string `json:"vote"`
+	Support string `json:"support"`
 
 	GroupID uint `sql:"not null" db:"group_id" json:"-"`
 
