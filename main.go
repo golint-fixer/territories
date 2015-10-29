@@ -16,6 +16,8 @@ import (
 	"github.com/quorumsco/databases"
 	"github.com/quorumsco/logs"
 	"github.com/quorumsco/settings"
+
+	"gopkg.in/olivere/elastic.v2"
 )
 
 func init() {
@@ -70,6 +72,28 @@ func serve(ctx *cli.Context) error {
 	if config.Migrate() {
 		db.AutoMigrate(models.Models()...)
 		logs.Debug("database migrated successfully")
+	}
+
+	client, err := elastic.NewClient()
+	if err != nil {
+		logs.Critical(err)
+		os.Exit(1)
+	}
+
+	// Use the IndexExists service to check if a specified index exists.
+	exists, err := client.IndexExists("contacts").Do()
+	if err != nil {
+		logs.Critical(err)
+		os.Exit(1)
+	}
+	if !exists {
+		createIndex, err := client.CreateIndex("contacts").Do()
+		if err != nil {
+			logs.Critical(err)
+		}
+		if !createIndex.Acknowledged {
+			logs.Critical("Index creation wasn't aknowledged")
+		}
 	}
 
 	if config.Debug() {

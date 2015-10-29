@@ -52,9 +52,15 @@ type Contact struct {
 	Tags  []Tag  `json:"tags,omitempty" gorm:"many2many:contact_tags;"`
 }
 
+type Search struct {
+	Query string
+	Field string
+}
+
 type ContactArgs struct {
 	MissionID uint
 	Contact   *Contact
+	Search    *Search
 }
 
 type ContactReply struct {
