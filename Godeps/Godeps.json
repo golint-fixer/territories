@@ -75,6 +75,11 @@
 		{
 			"ImportPath": "github.com/shiena/ansicolor",
 			"Rev": "a5e2b567a4dd6cc74545b8a4f27c9d63b9e7735b"
+		},
+		{
+			"ImportPath": "gopkg.in/olivere/elastic.v2",
+			"Comment": "v2.0.14",
+			"Rev": "1de06a68b064a4185f388a50a5f4371d855c2229"
 		}
 	]
 }
