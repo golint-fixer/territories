@@ -23,8 +23,8 @@ func (t *Contact) Search(args models.ContactArgs, reply *models.ContactReply) er
 		return err
 	}
 	termQuery := elastic.NewMultiMatchQuery(args.Search.Query, args.Search.Field, "firstname")
-	termQuery.Type("cross_fields")
-	termQuery.Operator("or")
+	termQuery = termQuery.Type("cross_fields")
+	termQuery = termQuery.Operator("and")
 	searchResult, err := client.Search().
 		Index("contacts").
 		Query(&termQuery).
