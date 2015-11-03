@@ -75,6 +75,7 @@ func serve(ctx *cli.Context) error {
 	}
 
 	ElasticSettings, err := config.Elasticsearch()
+	logs.Debug(ElasticSettings.String())
 	client, err := elastic.NewClient(elastic.SetURL(ElasticSettings.String()))
 	if err != nil {
 		logs.Critical(err)
