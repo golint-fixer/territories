@@ -74,7 +74,8 @@ func serve(ctx *cli.Context) error {
 		logs.Debug("database migrated successfully")
 	}
 
-	client, err := elastic.NewClient()
+	ElasticSettings, err := config.Elasticsearch()
+	client, err := elastic.NewClient(elastic.SetURL(ElasticSettings.String()))
 	if err != nil {
 		logs.Critical(err)
 		os.Exit(1)
