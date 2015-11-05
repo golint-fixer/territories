@@ -74,29 +74,6 @@ func serve(ctx *cli.Context) error {
 		logs.Debug("database migrated successfully")
 	}
 
-	ElasticSettings, err := config.Elasticsearch()
-	client, err := elastic.NewClient(elastic.SetURL(ElasticSettings.String()))
-	if err != nil {
-		logs.Critical(err)
-		os.Exit(1)
-	}
-
-	// Use the IndexExists service to check if a specified index exists.
-	exists, err := client.IndexExists("contacts").Do()
-	if err != nil {
-		logs.Critical(err)
-		os.Exit(1)
-	}
-	if !exists {
-		createIndex, err := client.CreateIndex("contacts").Do()
-		if err != nil {
-			logs.Critical(err)
-		}
-		if !createIndex.Acknowledged {
-			logs.Critical("Index creation wasn't aknowledged")
-		}
-	}
-
 	if config.Debug() {
 		db.LogMode(true)
 	}
@@ -108,10 +85,34 @@ func serve(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
+	ElasticSettings, err := config.Elasticsearch()
+	client, err := elastic.NewClient(elastic.SetURL(ElasticSettings.String()))
+	if err != nil {
+		logs.Critical(err)
+		os.Exit(1)
+	}
+
+	// // Use the IndexExists service to check if a specified index exists.
+	// exists, err := client.IndexExists("contacts").Do()
+	// if err != nil {
+	// 	logs.Critical(err)
+	// 	os.Exit(1)
+	// }
+	// if !exists {
+	// 	createIndex, err := client.CreateIndex("contacts").Do()
+	// 	if err != nil {
+	// 		logs.Critical(err)
+	// 	}
+	// 	if !createIndex.Acknowledged {
+	// 		logs.Critical("Index creation wasn't aknowledged")
+	// 	}
+	// }
+
 	rpc.Register(&controllers.Contact{DB: db})
 	rpc.Register(&controllers.Note{DB: db})
 	rpc.Register(&controllers.Tag{DB: db})
 	rpc.Register(&controllers.Mission{DB: db})
+	rpc.Register(&controllers.Search{Client: client})
 	rpc.HandleHTTP()
 
 	l, e := net.Listen("tcp", server.String())
