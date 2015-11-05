@@ -86,7 +86,8 @@ func serve(ctx *cli.Context) error {
 	}
 
 	ElasticSettings, err := config.Elasticsearch()
-	client, err := elastic.NewClient(elastic.SetURL(ElasticSettings.String()))
+	var client *elastic.Client
+	client, err = elastic.NewClient(elastic.SetURL(ElasticSettings.String()))
 	if err != nil {
 		logs.Critical(err)
 		os.Exit(1)
@@ -108,11 +109,11 @@ func serve(ctx *cli.Context) error {
 	// 	}
 	// }
 
+	rpc.Register(&controllers.Search{Client: client})
 	rpc.Register(&controllers.Contact{DB: db})
 	rpc.Register(&controllers.Note{DB: db})
 	rpc.Register(&controllers.Tag{DB: db})
 	rpc.Register(&controllers.Mission{DB: db})
-	rpc.Register(&controllers.Search{Client: client})
 	rpc.HandleHTTP()
 
 	l, e := net.Listen("tcp", server.String())
