@@ -65,6 +65,10 @@
 			"Rev": "4fc50e53077432246684f9b766a6f3f6a81b8962"
 		},
 		{
+			"ImportPath": "github.com/quorumsco/elastic",
+			"Rev": "a7dfb2777dc2fa1b756f99f73e193b0a3cab91b5"
+		},
+		{
 			"ImportPath": "github.com/quorumsco/logs",
 			"Rev": "0247b60e20020bc43a369063d97b55493ec673c1"
 		},
@@ -75,11 +79,6 @@
 		{
 			"ImportPath": "github.com/shiena/ansicolor",
 			"Rev": "a5e2b567a4dd6cc74545b8a4f27c9d63b9e7735b"
-		},
-		{
-			"ImportPath": "gopkg.in/olivere/elastic.v2",
-			"Comment": "v2.0.14",
-			"Rev": "1de06a68b064a4185f388a50a5f4371d855c2229"
 		}
 	]
 }
