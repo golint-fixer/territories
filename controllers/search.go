@@ -6,9 +6,8 @@ import (
 	"strconv"
 
 	"github.com/quorumsco/contacts/models"
+	"github.com/quorumsco/elastic"
 	"github.com/quorumsco/logs"
-
-	"gopkg.in/olivere/elastic.v2"
 )
 
 type Search struct {
