@@ -69,12 +69,6 @@ func (t *Contact) Update(args models.ContactArgs, reply *models.ContactReply) er
 		return err
 	}
 
-	var search = new(Search)
-	err = search.Index(args, reply)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -91,12 +85,6 @@ func (t *Contact) Create(args models.ContactArgs, reply *models.ContactReply) er
 
 	reply.Contact = args.Contact
 
-	var search = new(Search)
-	err = search.Index(args, reply)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -108,12 +96,6 @@ func (t *Contact) Delete(args models.ContactArgs, reply *models.ContactReply) er
 
 	if err = contactStore.Delete(args.Contact, args); err != nil {
 		logs.Debug(err)
-		return err
-	}
-
-	var search = new(Search)
-	err = search.UnIndex(args, reply)
-	if err != nil {
 		return err
 	}
 

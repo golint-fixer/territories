@@ -26,7 +26,7 @@ func (s *Search) Index(args models.ContactArgs, reply *models.ContactReply) erro
 		Index("contacts").
 		Type("contact").
 		Id(id).
-		BodyJson(reply.Contact).
+		BodyJson(args.Contact).
 		Do()
 	if err != nil {
 		logs.Critical(err)
