@@ -7,6 +7,7 @@ import (
 	"net/rpc"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/jinzhu/gorm"
@@ -17,6 +18,13 @@ import (
 	"github.com/quorumsco/elastic"
 	"github.com/quorumsco/logs"
 	"github.com/quorumsco/settings"
+)
+
+var (
+	//TIMEOUT time between each try
+	TIMEOUT = 5 * time.Second
+	//RETRY number of tries
+	RETRY = 3
 )
 
 func init() {
@@ -86,7 +94,7 @@ func serve(ctx *cli.Context) error {
 
 	ElasticSettings, err := config.Elasticsearch()
 	var client *elastic.Client
-	client, err = elastic.NewClient(elastic.SetURL(ElasticSettings.String()))
+	client, err = dialElasticRetry(ElasticSettings.String())
 	if err != nil {
 		logs.Critical(err)
 		os.Exit(1)
@@ -121,4 +129,27 @@ func serve(ctx *cli.Context) error {
 	}
 	logs.Info("Listening on " + server.String())
 	return http.Serve(l, nil)
+}
+
+func dialElasticRetry(address string) (*elastic.Client, error) {
+	var client *elastic.Client
+	var err error
+
+	var i int
+retry:
+	for {
+		client, err = elastic.NewClient(elastic.SetURL(address))
+		switch {
+		case err == nil:
+			break retry
+		case i >= RETRY:
+			return nil, err
+		default:
+			logs.Error(err)
+			i++
+		}
+		time.Sleep(TIMEOUT)
+	}
+
+	return client, nil
 }
