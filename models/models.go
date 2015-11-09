@@ -1,3 +1,4 @@
+// Definition of the structures and SQL interaction functions
 package models
 
 import (
@@ -6,6 +7,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// Models return something..
 func Models() []interface{} {
 	return []interface{}{
 		&Contact{}, &Note{}, &Tag{}, &Mission{},

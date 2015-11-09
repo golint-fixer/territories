@@ -1,3 +1,4 @@
+// Definition of the structures and SQL interaction functions
 package models
 
 import (
@@ -6,10 +7,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// ContactSQL contains a Gorm client and the contact and gorm related methods
 type ContactSQL struct {
 	DB *gorm.DB
 }
 
+// Save inserts a new contact into the database
 func (s *ContactSQL) Save(c *Contact, args ContactArgs) error {
 	if c == nil {
 		return errors.New("save: contact is nil")
@@ -25,6 +28,7 @@ func (s *ContactSQL) Save(c *Contact, args ContactArgs) error {
 	return s.DB.Where("group_id = ?", args.Contact.GroupID).Save(c).Error
 }
 
+// Delete removes a contact from the database
 func (s *ContactSQL) Delete(c *Contact, args ContactArgs) error {
 	if c == nil {
 		return errors.New("delete: contact is nil")
@@ -33,6 +37,7 @@ func (s *ContactSQL) Delete(c *Contact, args ContactArgs) error {
 	return s.DB.Where("group_id = ?", args.Contact.GroupID).Delete(c).Error
 }
 
+// First returns a contact from the database using his ID
 func (s *ContactSQL) First(args ContactArgs) (*Contact, error) {
 	var c Contact
 
@@ -46,6 +51,7 @@ func (s *ContactSQL) First(args ContactArgs) (*Contact, error) {
 	return &c, nil
 }
 
+// Find returns all the contacts with a given groupID from the database
 func (s *ContactSQL) Find(args ContactArgs) ([]Contact, error) {
 	var contacts []Contact
 
@@ -57,6 +63,7 @@ func (s *ContactSQL) Find(args ContactArgs) ([]Contact, error) {
 	return contacts, nil
 }
 
+// FindByMission returns all the contacts from in a mission from the database
 func (s *ContactSQL) FindByMission(m *Mission, args ContactArgs) ([]Contact, error) {
 	var contacts []Contact
 	err := s.DB.Model(m).Related(&contacts, "Contacts").Error

@@ -45,7 +45,7 @@ func main() {
 	cmd.RunAndExitOnError()
 }
 
-// Definition of the GORM and Elasticsearch clients and Registration of the functions to RPC
+// Definition of the GORM and Elasticsearch clients and Registration of the functions to RPC with the said clients
 func serve(ctx *cli.Context) error {
 	var (
 		config settings.Config

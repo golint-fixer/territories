@@ -6,10 +6,12 @@ import (
 	"github.com/quorumsco/logs"
 )
 
+// Tags contains the tag related methods and a gorm client
 type Tag struct {
 	DB *gorm.DB
 }
 
+// RetrieveCollection calls the TagSQL Find method and returns the results via RPC
 func (t *Tag) RetrieveCollection(args models.TagArgs, reply *models.TagReply) error {
 	var (
 		err error
@@ -26,6 +28,7 @@ func (t *Tag) RetrieveCollection(args models.TagArgs, reply *models.TagReply) er
 	return nil
 }
 
+// Create calls the TagSQL Save method and returns the results via RPC
 func (t *Tag) Create(args models.TagArgs, reply *models.TagReply) error {
 	var (
 		err error
@@ -43,6 +46,7 @@ func (t *Tag) Create(args models.TagArgs, reply *models.TagReply) error {
 	return nil
 }
 
+// Delete calls the TagSQL Delete method and returns the results via RPC
 func (t *Tag) Delete(args models.TagArgs, reply *models.TagReply) error {
 	var (
 		err error

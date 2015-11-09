@@ -10,10 +10,12 @@ import (
 	"github.com/quorumsco/logs"
 )
 
+// Search contains the search related methods and a gorm client
 type Search struct {
 	Client *elastic.Client
 }
 
+// Index indexes a contact into elasticsearch
 func (s *Search) Index(args models.ContactArgs, reply *models.ContactReply) error {
 	id := strconv.Itoa(int(args.Contact.ID))
 	if id == "" {
@@ -35,6 +37,7 @@ func (s *Search) Index(args models.ContactArgs, reply *models.ContactReply) erro
 	return nil
 }
 
+// UnIndex unindexes a contact from elasticsearch
 func (s *Search) UnIndex(args models.ContactArgs, reply *models.ContactReply) error {
 	id := strconv.Itoa(int(args.Contact.ID))
 	if id == "" {
@@ -55,6 +58,7 @@ func (s *Search) UnIndex(args models.ContactArgs, reply *models.ContactReply) er
 	return nil
 }
 
+// SearchContacts performs a cross_field search request to elasticsearch and returns the results via RPC
 func (s *Search) SearchContacts(args models.SearchArgs, reply *models.SearchReply) error {
 	termQuery := elastic.NewMultiMatchQuery(args.Search.Query, args.Search.Field, "firstname")
 	termQuery = termQuery.Type("cross_fields")

@@ -7,10 +7,12 @@ import (
 	"github.com/quorumsco/logs"
 )
 
+// Contact contains the contact related methods and a gorm client
 type Contact struct {
 	DB *gorm.DB
 }
 
+// RetrieveCollection calls the ContactSQL Find method and returns the results via RPC
 func (t *Contact) RetrieveCollection(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
 		contactStore = models.ContactStore(t.DB)
@@ -25,6 +27,7 @@ func (t *Contact) RetrieveCollection(args models.ContactArgs, reply *models.Cont
 	return nil
 }
 
+// RetrieveCollectionByMission calls the ContactSQL FindByMission method and returns the results via RPC
 func (t *Contact) RetrieveCollectionByMission(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
 		err error
@@ -41,6 +44,7 @@ func (t *Contact) RetrieveCollectionByMission(args models.ContactArgs, reply *mo
 	return nil
 }
 
+// Retrieve calls the ContactSQL First method and returns the results via RPC
 func (t *Contact) Retrieve(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
 		contactStore = models.ContactStore(t.DB)
@@ -55,6 +59,7 @@ func (t *Contact) Retrieve(args models.ContactArgs, reply *models.ContactReply) 
 	return nil
 }
 
+// Update calls the ContactSQL Update method and returns the results via RPC
 func (t *Contact) Update(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
 		contactStore = models.ContactStore(t.DB)
@@ -73,6 +78,7 @@ func (t *Contact) Update(args models.ContactArgs, reply *models.ContactReply) er
 	return nil
 }
 
+// Create calls the ContactSQL Create method and returns the results via RPC
 func (t *Contact) Create(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
 		contactStore = models.ContactStore(t.DB)
@@ -89,6 +95,7 @@ func (t *Contact) Create(args models.ContactArgs, reply *models.ContactReply) er
 	return nil
 }
 
+// Delete calls the ContactSQL Delete method and returns the results via RPC
 func (t *Contact) Delete(args models.ContactArgs, reply *models.ContactReply) error {
 	var (
 		contactStore = models.ContactStore(t.DB)

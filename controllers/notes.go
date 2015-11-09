@@ -6,10 +6,12 @@ import (
 	"github.com/quorumsco/logs"
 )
 
+// Note contains the note related methods and a gorm client
 type Note struct {
 	DB *gorm.DB
 }
 
+// RetrieveCollection calls the NoteSQL Find method and returns the results via RPC
 func (t *Note) RetrieveCollection(args models.NoteArgs, reply *models.NoteReply) error {
 	var (
 		err error
@@ -26,6 +28,7 @@ func (t *Note) RetrieveCollection(args models.NoteArgs, reply *models.NoteReply)
 	return nil
 }
 
+// Retrieve calls the NoteSQL First method and returns the results via RPC
 func (t *Note) Retrieve(args models.NoteArgs, reply *models.NoteReply) error {
 	var (
 		NoteStore = models.NoteStore(t.DB)
@@ -40,6 +43,7 @@ func (t *Note) Retrieve(args models.NoteArgs, reply *models.NoteReply) error {
 	return nil
 }
 
+// Create calls the NoteSQL Save method and returns the results via RPC
 func (t *Note) Create(args models.NoteArgs, reply *models.NoteReply) error {
 	var (
 		err error
@@ -57,6 +61,7 @@ func (t *Note) Create(args models.NoteArgs, reply *models.NoteReply) error {
 	return nil
 }
 
+// Delete calls the NoteSQL Delete method and returns the results via RPC
 func (t *Note) Delete(args models.NoteArgs, reply *models.NoteReply) error {
 	var (
 		err error

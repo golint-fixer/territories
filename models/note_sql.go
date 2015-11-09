@@ -1,3 +1,4 @@
+// Definition of the structures and SQL interaction functions
 package models
 
 import (
@@ -6,10 +7,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// NoteSQL contains a Gorm client and the note and gorm related methods
 type NoteSQL struct {
 	DB *gorm.DB
 }
 
+// Save inserts a new note into the database
 func (s *NoteSQL) Save(n *Note, args NoteArgs) error {
 	if n == nil {
 		return errors.New("save: note is nil")
@@ -25,6 +28,7 @@ func (s *NoteSQL) Save(n *Note, args NoteArgs) error {
 	return s.DB.Where("group_id = ?", args.Note.GroupID).Save(n).Error
 }
 
+// Delete removes a note from the database
 func (s *NoteSQL) Delete(n *Note, args NoteArgs) error {
 	if n == nil {
 		return errors.New("delete: note is nil")
@@ -33,6 +37,7 @@ func (s *NoteSQL) Delete(n *Note, args NoteArgs) error {
 	return s.DB.Where("group_id = ?", args.Note.GroupID).Delete(n).Error
 }
 
+// First returns a note from the database usin it's ID
 func (s *NoteSQL) First(args NoteArgs) (*Note, error) {
 	var n Note
 
@@ -46,6 +51,7 @@ func (s *NoteSQL) First(args NoteArgs) (*Note, error) {
 	return &n, nil
 }
 
+// Find returns all the notes containing a given groupID from the database
 func (s *NoteSQL) Find(args NoteArgs) ([]Note, error) {
 	var notes []Note
 
