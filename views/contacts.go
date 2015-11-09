@@ -1,3 +1,4 @@
+// Views to communicate via JSON
 package views
 
 import "github.com/quorumsco/contacts/models"
