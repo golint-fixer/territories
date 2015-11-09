@@ -45,6 +45,7 @@ func main() {
 	cmd.RunAndExitOnError()
 }
 
+// Definition of the GORM and Elasticsearch clients and Registration of the functions to RPC
 func serve(ctx *cli.Context) error {
 	var (
 		config settings.Config
@@ -132,6 +133,7 @@ func serve(ctx *cli.Context) error {
 	return http.Serve(l, nil)
 }
 
+// We need a retry because elasticsearch takes a bit of time to be up and running before we can connect to it
 func dialElasticRetry(address string) (*elastic.Client, error) {
 	var client *elastic.Client
 	var err error
