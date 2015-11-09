@@ -1,3 +1,4 @@
+// Contact managing structure, it does all the database CRUD interaction and contains an implementation of elasticsearch engine
 package main
 
 import (
