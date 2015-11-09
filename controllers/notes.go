@@ -1,3 +1,4 @@
+// Bundle of functions managing the CRUD and the elasticsearch engine
 package controllers
 
 import (
