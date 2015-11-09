@@ -100,21 +100,21 @@ func serve(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	// // Use the IndexExists service to check if a specified index exists.
-	// exists, err := client.IndexExists("contacts").Do()
-	// if err != nil {
-	// 	logs.Critical(err)
-	// 	os.Exit(1)
-	// }
-	// if !exists {
-	// 	createIndex, err := client.CreateIndex("contacts").Do()
-	// 	if err != nil {
-	// 		logs.Critical(err)
-	// 	}
-	// 	if !createIndex.Acknowledged {
-	// 		logs.Critical("Index creation wasn't aknowledged")
-	// 	}
-	// }
+	// Use the IndexExists service to check if a specified index exists.
+	exists, err := client.IndexExists("contacts").Do()
+	if err != nil {
+		logs.Critical(err)
+		os.Exit(1)
+	}
+	if !exists {
+		createIndex, err := client.CreateIndex("contacts").Do()
+		if err != nil {
+			logs.Critical(err)
+		}
+		if !createIndex.Acknowledged {
+			logs.Critical("Index creation wasn't aknowledged")
+		}
+	}
 
 	rpc.Register(&controllers.Search{Client: client})
 	rpc.Register(&controllers.Contact{DB: db})
