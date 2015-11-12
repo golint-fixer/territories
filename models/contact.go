@@ -4,7 +4,7 @@ package models
 import (
 	"time"
 
-	"github.com/asaskevich/govalidator"
+	// "github.com/asaskevich/govalidator"
 )
 
 // Position represents the coordinates of a contact
