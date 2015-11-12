@@ -6,11 +6,6 @@
 	],
 	"Deps": [
 		{
-			"ImportPath": "github.com/asaskevich/govalidator",
-			"Comment": "v2-18-g0ac1814",
-			"Rev": "0ac181471c45e5153dd36527926981230f51dfbd"
-		},
-		{
 			"ImportPath": "github.com/codegangsta/cli",
 			"Comment": "1.2.0-139-g142e6cd",
 			"Rev": "142e6cd241a4dfbf7f07a018f1f8225180018da4"
@@ -62,7 +57,7 @@
 		},
 		{
 			"ImportPath": "github.com/quorumsco/databases",
-			"Rev": "4fc50e53077432246684f9b766a6f3f6a81b8962"
+			"Rev": "0a5664c20409e4428eeb1aaccf1341794552a084"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/elastic",
