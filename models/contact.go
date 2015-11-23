@@ -7,31 +7,22 @@ import (
 	// "github.com/asaskevich/govalidator"
 )
 
-// Position represents the coordinates of a contact
-type Position struct {
-	X float64
-	Y float64
+// Address represents all the components of a contact's address
+type Address struct {
+	ID uint `json:"id"`
+
+	HouseNumber    string `json:"housenumber,omitempty"`
+	Street         string `json:"street,omitempty"`
+	PostalCode     string `json:"postalcode,omitempty"`
+	City           string `json:"city,omitempty"`
+	County         string // Département
+	State          string // Région
+	Country        string
+	Addition       string // Complément d'adresse
+	PollingStation string // Code bureau de vote
 
 	Latitude  float64
 	Longitude float64
-}
-
-// Address represents all the components of a contact's address
-type Address struct {
-	Position
-
-	ID uint
-
-	HouseNumber string
-	Street      string
-	PostalCode  string
-	City        string
-	County      string // Département
-	State       string // Région
-	Country     string
-	Addition    string // Complément d'adresse
-
-	PollingStation string // Code bureau de vote
 }
 
 // Contact represents all the components of a contact
@@ -45,7 +36,9 @@ type Contact struct {
 	Mail        *string    `json:"mail,omitempty"`
 	Phone       *string    `json:"phone,omitempty"`
 	Mobile      *string    `json:"mobile,omitempty"`
-	Adress      *string    `json:"adress,omitempty"`
+	Address     Address    `json:"address,omitempty"`
+	AddressID   uint       `json:"-" db:"address_id"`
+	// Adress      *string    `json:"adress,omitempty"`
 
 	Vote    string `json:"vote"`
 	Support string `json:"support"`

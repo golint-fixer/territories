@@ -7,9 +7,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Models return something..
+// Models return one of every model the database must create..
 func Models() []interface{} {
 	return []interface{}{
-		&Contact{}, &Note{}, &Tag{}, &Mission{},
+		&Contact{}, &Note{}, &Tag{}, &Mission{}, &Address{},
 	}
 }

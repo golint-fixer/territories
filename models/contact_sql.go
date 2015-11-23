@@ -47,6 +47,12 @@ func (s *ContactSQL) First(args ContactArgs) (*Contact, error) {
 		}
 		return nil, err
 	}
+	if err := s.DB.Where(c.AddressID).First(&c.Address).Error; err != nil {
+		if err == gorm.RecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
 
 	return &c, nil
 }

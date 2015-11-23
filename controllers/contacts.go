@@ -71,6 +71,8 @@ func (t *Contact) Update(args models.ContactArgs, reply *models.ContactReply) er
 		return err
 	}
 
+	args.Contact.Address = models.Address{}
+
 	if reply.Contact, err = contactStore.First(args); err != nil {
 		return err
 	}
