@@ -61,7 +61,7 @@
 		},
 		{
 			"ImportPath": "github.com/quorumsco/elastic",
-			"Rev": "a7dfb2777dc2fa1b756f99f73e193b0a3cab91b5"
+			"Rev": "f45f4c266440c8e4053012ee2de05dbdd713649d"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/logs",
