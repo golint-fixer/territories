@@ -14,14 +14,15 @@ type Action struct {
 
 // Contact represents all the components of a contact
 type Fact struct {
-	ID       uint    `gorm:"primary_key" json:"id"`
-	GroupID  uint    `json:"group_id"`
-	Date     string  `json:"-"`
-	Type     string  `json:"type"`
-	Status   string  `json:"status"`
-	Contact  Contact `json:"contact"`
-	Action   Action  `json:"action"`
-	ActionID uint    `json:"-"`
+	ID        uint    `gorm:"primary_key" json:"id"`
+	GroupID   uint    `json:"group_id"`
+	Date      string  `json:"-"`
+	Type      string  `json:"type"`
+	Status    string  `json:"status"`
+	Contact   Contact `json:"contact"`
+	ContactID uint    `json:"contact_id"`
+	Action    Action  `json:"action"`
+	ActionID  uint    `json:"-"`
 }
 
 // FactArgs is used in the RPC communications between the gateway and Contacts

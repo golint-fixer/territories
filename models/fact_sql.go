@@ -53,6 +53,12 @@ func (s *FactSQL) First(args FactArgs) (*Fact, error) {
 		}
 		return nil, err
 	}
+	if err := s.DB.Where(f.ContactID).First(&f.Contact).Error; err != nil {
+		if err == gorm.RecordNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
 
 	return &f, nil
 }

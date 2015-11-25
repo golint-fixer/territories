@@ -38,7 +38,6 @@ type Contact struct {
 	Mobile      *string    `json:"mobile,omitempty"`
 	Address     Address    `json:"address,omitempty"`
 	AddressID   uint       `json:"-" db:"address_id"`
-	// Adress      *string    `json:"adress,omitempty"`
 
 	Vote    string `json:"vote"`
 	Support string `json:"support"`

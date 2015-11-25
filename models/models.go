@@ -10,6 +10,6 @@ import (
 // Models return one of every model the database must create..
 func Models() []interface{} {
 	return []interface{}{
-		&Contact{}, &Note{}, &Tag{}, &Mission{}, &Address{}, &Fact{},
+		&Contact{}, &Note{}, &Tag{}, &Mission{}, &Address{}, &Fact{}, &Action{},
 	}
 }
