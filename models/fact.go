@@ -5,6 +5,7 @@ package models
 type Action struct {
 	ID uint `json:"id"`
 
+	Name     string `json:"name"`
 	ActionID uint   `json:"action_id"`
 	TypeData string `json:"type_data"`
 	Data     string `json:"data"`

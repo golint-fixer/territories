@@ -4,6 +4,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/quorumsco/contacts/models"
@@ -23,6 +24,8 @@ func (s *Search) Index(args models.ContactArgs, reply *models.ContactReply) erro
 		logs.Error("id is nil")
 		return errors.New("id is nil")
 	}
+
+	args.Contact.Address.Location = fmt.Sprintf("%s,%s", args.Contact.Address.Latitude, args.Contact.Address.Longitude)
 
 	_, err := s.Client.Index().
 		Index("contacts").

@@ -21,8 +21,9 @@ type Address struct {
 	Addition       string // Complément d'adresse
 	PollingStation string // Code bureau de vote
 
-	Latitude  float64
-	Longitude float64
+	Latitude  string `json:"latitude,omitempty"`
+	Longitude string `json:"longitude,omitempty"`
+	Location  string `json:"location,omitempty"` // as "lat,lon" (for elasticsearch)
 }
 
 // Contact represents all the components of a contact
