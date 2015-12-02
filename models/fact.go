@@ -28,8 +28,8 @@ type Fact struct {
 
 //To represent a GeoPolygon
 type Point struct {
-	Lat float64 `json: "lat"`
-	Lon float64 `json: "lon"`
+	Lat float64 `json:"lat"`
+	Lon float64 `json:"lon"`
 }
 
 // Contact represents all the components of a contact
