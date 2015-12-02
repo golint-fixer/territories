@@ -26,6 +26,21 @@ type Fact struct {
 	ActionID  uint    `json:"-"`
 }
 
+//To represent a GeoPolygon
+type Point struct {
+	Lat float64 `json: "lat"`
+	Lon float64 `json: "lon"`
+}
+
+// Contact represents all the components of a contact
+type FactsJson struct {
+	Name     string  `json:"name"`
+	TypeData string  `json:"type_data"`
+	Pitch    string  `json:"pitch"`
+	Points   []Point `json:"points"`
+	GroupID  uint    `json:"group_id"`
+}
+
 // FactArgs is used in the RPC communications between the gateway and Contacts
 type FactArgs struct {
 	Fact *Fact

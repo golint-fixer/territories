@@ -64,14 +64,51 @@ func (s *Search) UnIndex(args models.ContactArgs, reply *models.ContactReply) er
 
 // SearchContacts performs a cross_field search request to elasticsearch and returns the results via RPC
 func (s *Search) SearchContacts(args models.SearchArgs, reply *models.SearchReply) error {
-	termQuery := elastic.NewMultiMatchQuery(args.Search.Query, args.Search.Field, "firstname")
-	termQuery = termQuery.Type("cross_fields")
-	termQuery = termQuery.Operator("and")
+	Query := elastic.NewMultiMatchQuery(args.Search.Query, "surname", "firstname") //A remplacer par fields[] plus tard
+	Query = Query.Type("cross_fields")
+	Query = Query.Operator("and")
 	searchResult, err := s.Client.Search().
 		Index("contacts").
-		Query(&termQuery).
+		Query(&Query).
+		Size(30).
 		Sort("surname", true).
-		Pretty(true).
+		Do()
+	if err != nil {
+		logs.Critical(err)
+		return err
+	}
+
+	if searchResult.Hits != nil {
+		for _, hit := range searchResult.Hits.Hits {
+			var c models.Contact
+			err := json.Unmarshal(*hit.Source, &c)
+			if err != nil {
+				logs.Error(err)
+				return err
+			}
+			reply.Contacts = append(reply.Contacts, c)
+		}
+	} else {
+		reply.Contacts = nil
+	}
+
+	return nil
+}
+
+// SearchViaGeopolygon performs a GeoPolygon search request to elasticsearch and returns the results via RPC
+func (s *Search) SearchViaGeoPolygon(args models.SearchArgs, reply *models.SearchReply) error {
+	Filter := elastic.NewGeoPolygonFilter("location")
+	var point models.Point
+	for _, point = range args.Search.Polygon {
+		geoPoint := elastic.GeoPointFromLatLon(point.Lat, point.Lon)
+		Filter = Filter.AddPoint(geoPoint)
+	}
+	Query := elastic.NewFilteredQuery(elastic.NewMatchAllQuery())
+	Query = Query.Filter(Filter)
+	searchResult, err := s.Client.Search().
+		Index("contacts").
+		Query(&Query).
+		Size(100000).
 		Do()
 	if err != nil {
 		logs.Critical(err)

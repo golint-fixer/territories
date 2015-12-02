@@ -12,3 +12,7 @@ type Facts struct {
 type Fact struct {
 	Fact *models.Fact `json:"fact"`
 }
+
+type FactsJson struct {
+	FactsJson models.FactsJson `json:"facts_json"`
+}
