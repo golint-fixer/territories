@@ -38,6 +38,7 @@ type FactsJson struct {
 	TypeData string  `json:"type_data"`
 	Pitch    string  `json:"pitch"`
 	Points   []Point `json:"points"`
+	Status   string  `json:"status"`
 	GroupID  uint    `json:"group_id"`
 }
 
