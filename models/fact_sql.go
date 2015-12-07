@@ -49,15 +49,19 @@ func (s *FactSQL) First(args FactArgs) (*Fact, error) {
 	}
 	if err := s.DB.Where(f.ActionID).First(&f.Action).Error; err != nil {
 		if err == gorm.RecordNotFound {
-			return nil, nil
+			return nil, err
 		}
 		return nil, err
 	}
-	if err := s.DB.Where(f.ContactID).First(&f.Contact).Error; err != nil {
-		if err == gorm.RecordNotFound {
-			return nil, nil
-		}
+	err := s.DB.Where(f.ContactID).First(&f.Contact).Error
+	if err != nil && err != gorm.RecordNotFound {
 		return nil, err
+	}
+
+	if err == nil {
+		if err := s.DB.Where(f.Contact.AddressID).First(&f.Contact.Address).Error; err != nil && err != gorm.RecordNotFound {
+			return nil, err
+		}
 	}
 
 	return &f, nil

@@ -2,7 +2,7 @@
   "settings": {
     "debug": true,
     "migrate": true,
-    "database": "sqlite3"
+    "database": "postgres"
   },
   "components": {
     "server": {
@@ -13,7 +13,7 @@
       "path": "/tmp/contacts.sqlite"
     },
     "elasticsearch": {
-      "host": "localhost",
+      "host": "http://104.155.15.235",
       "port": 9200
     },
     "postgres": {

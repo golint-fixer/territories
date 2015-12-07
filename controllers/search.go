@@ -25,13 +25,31 @@ func (s *Search) Index(args models.ContactArgs, reply *models.ContactReply) erro
 		return errors.New("id is nil")
 	}
 
-	args.Contact.Address.Location = fmt.Sprintf("%s,%s", args.Contact.Address.Latitude, args.Contact.Address.Longitude)
+	if args.Contact.Address.Latitude != "" && args.Contact.Address.Longitude != "" {
+		args.Contact.Address.Location = fmt.Sprintf("%s,%s", args.Contact.Address.Latitude, args.Contact.Address.Longitude)
+	}
 
 	_, err := s.Client.Index().
 		Index("contacts").
 		Type("contact").
 		Id(id).
 		BodyJson(args.Contact).
+		Do()
+	if err != nil {
+		logs.Critical(err)
+		return err
+	}
+
+	return nil
+}
+
+// Index indexes a contact into elasticsearch
+func (s *Search) IndexFact(args models.FactArgs, reply *models.FactReply) error {
+	args.Fact.Contact.Address.Location = fmt.Sprintf("%s,%s", args.Fact.Contact.Address.Latitude, args.Fact.Contact.Address.Longitude)
+	_, err := s.Client.Index().
+		Index("facts").
+		Type("fact").
+		BodyJson(args.Fact).
 		Do()
 	if err != nil {
 		logs.Critical(err)
@@ -100,7 +118,7 @@ func (s *Search) SearchViaGeoPolygon(args models.SearchArgs, reply *models.Searc
 	Filter := elastic.NewGeoPolygonFilter("location")
 	var point models.Point
 	for _, point = range args.Search.Polygon {
-		geoPoint := elastic.GeoPointFromLatLon(point.Lat, point.Lon)
+		geoPoint := elastic.GeoPointFromLatLon(point.Lon, point.Lat)
 		Filter = Filter.AddPoint(geoPoint)
 	}
 	Query := elastic.NewFilteredQuery(elastic.NewMatchAllQuery())

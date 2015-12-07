@@ -102,21 +102,8 @@ func serve(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	// Use the IndexExists service to check if a specified index exists.
-	exists, err := client.IndexExists("contacts").Do()
-	if err != nil {
-		logs.Critical(err)
-		os.Exit(1)
-	}
-	if !exists {
-		createIndex, err := client.CreateIndex("contacts").Do()
-		if err != nil {
-			logs.Critical(err)
-		}
-		if !createIndex.Acknowledged {
-			logs.Critical("Index creation wasn't aknowledged")
-		}
-	}
+	checkIndex("contacts", client)
+	checkIndex("facts", client)
 
 	rpc.Register(&controllers.Search{Client: client})
 	rpc.Register(&controllers.Contact{DB: db})
@@ -134,6 +121,24 @@ func serve(ctx *cli.Context) error {
 	return http.Serve(l, nil)
 }
 
+func checkIndex(index string, client *elastic.Client) {
+	// Use the IndexExists service to check if a specified index exists.
+	exists, err := client.IndexExists(index).Do()
+	if err != nil {
+		logs.Critical(err)
+		os.Exit(1)
+	}
+	if !exists {
+		createIndex, err := client.CreateIndex(index).Do()
+		if err != nil {
+			logs.Critical(err)
+		}
+		if !createIndex.Acknowledged {
+			logs.Critical("Index creation wasn't aknowledged")
+		}
+	}
+}
+
 // We need a retry because elasticsearch takes a bit of time to be up and running before we can connect to it
 func dialElasticRetry(address string) (*elastic.Client, error) {
 	var client *elastic.Client
@@ -142,7 +147,7 @@ func dialElasticRetry(address string) (*elastic.Client, error) {
 	var i int
 retry:
 	for {
-		client, err = elastic.NewClient(elastic.SetURL(address))
+		client, err = elastic.NewClient(elastic.SetURL(address), elastic.SetSniff(false))
 		switch {
 		case err == nil:
 			break retry

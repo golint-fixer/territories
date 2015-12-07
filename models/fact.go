@@ -10,7 +10,7 @@ type Action struct {
 	TypeData string `json:"type_data"`
 	Data     string `json:"data"`
 	Pitch    string `json:"pitch"`
-	Status   string `json:"status"`
+	Status   string `json:"status"` //statusdata
 }
 
 // Contact represents all the components of a contact

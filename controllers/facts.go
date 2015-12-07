@@ -56,7 +56,13 @@ func (t *Fact) Create(args models.FactArgs, reply *models.FactReply) error {
 		return err
 	}
 
-	reply.Fact = args.Fact
+	ID := args.Fact.ID
+	args.Fact = &models.Fact{ID: ID}
+
+	if reply.Fact, err = factStore.First(args); err != nil {
+		logs.Error(err)
+		return err
+	}
 
 	return nil
 }
