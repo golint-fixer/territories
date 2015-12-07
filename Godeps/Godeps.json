@@ -61,7 +61,7 @@
 		},
 		{
 			"ImportPath": "github.com/quorumsco/elastic",
-			"Rev": "f45f4c266440c8e4053012ee2de05dbdd713649d"
+			"Rev": "390777a4eecc46a095e47bb5d86c1cb000300420"
 		},
 		{
 			"ImportPath": "github.com/quorumsco/logs",
@@ -69,7 +69,7 @@
 		},
 		{
 			"ImportPath": "github.com/quorumsco/settings",
-			"Rev": "a6756a4f86f51feae11a0004faeb54bbeb683091"
+			"Rev": "752bcc74d3e666256fffb452e2241866d84cba1b"
 		},
 		{
 			"ImportPath": "github.com/shiena/ansicolor",

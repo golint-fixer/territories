@@ -23,7 +23,6 @@ func canonicalize(rawurls ...string) []string {
 	for _, rawurl := range rawurls {
 		u, err := url.Parse(rawurl)
 		if err == nil && (u.Scheme == "http" || u.Scheme == "https") {
-			fmt.Println(u)
 			u.Fragment = ""
 			u.Path = ""
 			u.RawQuery = ""
