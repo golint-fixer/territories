@@ -10,7 +10,7 @@ type Action struct {
 	TypeData string `json:"type_data"`
 	Data     string `json:"data"`
 	Pitch    string `json:"pitch"`
-	Status   string `json:"statut"` //statusdata
+	Status   string `json:"status"` //statusdata
 }
 
 // Contact represents all the components of a contact
@@ -19,7 +19,7 @@ type Fact struct {
 	GroupID   uint    `json:"group_id"`
 	Date      string  `json:"-"`
 	Type      string  `json:"type"`
-	Status    string  `json:"statut"`
+	Status    string  `json:"status"`
 	Contact   Contact `json:"contact"`
 	ContactID uint    `json:"contact_id"`
 	Action    Action  `json:"action"`
@@ -38,7 +38,7 @@ type FactsJson struct {
 	TypeData string  `json:"type_data"`
 	Pitch    string  `json:"pitch"`
 	Points   []Point `json:"points"`
-	Status   string  `json:"statut"`
+	Status   string  `json:"status"`
 	GroupID  uint    `json:"group_id"`
 }
 
