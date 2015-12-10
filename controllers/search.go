@@ -141,7 +141,7 @@ func (s *Search) SearchIDViaGeoPolygon(args models.SearchArgs, reply *models.Sea
 		Index("facts").
 		FetchSourceContext(source).
 		Query(&Query).
-		Size(100000).
+		Size(10000000).
 		Do()
 	if err != nil {
 		logs.Critical(err)
@@ -160,6 +160,42 @@ func (s *Search) SearchIDViaGeoPolygon(args models.SearchArgs, reply *models.Sea
 		}
 	} else {
 		reply.IDs = nil
+	}
+
+	return nil
+}
+
+// RetrieveContacts performs a match_all query to elasticsearch and returns the results via RPC
+func (s *Search) RetrieveContacts(args models.SearchArgs, reply *models.SearchReply) error {
+	Query := elastic.NewFilteredQuery(elastic.NewMatchAllQuery())
+	source := elastic.NewFetchSourceContext(true)
+	source = source.Include("id")
+	source = source.Include("firstname")
+	source = source.Include("surname")
+
+	searchResult, err := s.Client.Search().
+		Index("contacts").
+		FetchSourceContext(source).
+		Query(&Query).
+		Size(10000000).
+		Do()
+	if err != nil {
+		logs.Critical(err)
+		return err
+	}
+
+	if searchResult.Hits != nil {
+		for _, hit := range searchResult.Hits.Hits {
+			var c models.Contact
+			err := json.Unmarshal(*hit.Source, &c)
+			if err != nil {
+				logs.Error(err)
+				return err
+			}
+			reply.Contacts = append(reply.Contacts, c)
+		}
+	} else {
+		reply.Contacts = nil
 	}
 
 	return nil
