@@ -17,6 +17,10 @@ type Search struct {
 	Client *elastic.Client
 }
 
+type respID struct {
+	ContactID uint `json:"contact_id"`
+}
+
 // Index indexes a contact into elasticsearch
 func (s *Search) Index(args models.ContactArgs, reply *models.ContactReply) error {
 	id := strconv.Itoa(int(args.Contact.ID))
@@ -114,17 +118,28 @@ func (s *Search) SearchContacts(args models.SearchArgs, reply *models.SearchRepl
 }
 
 // SearchViaGeopolygon performs a GeoPolygon search request to elasticsearch and returns the results via RPC
-func (s *Search) SearchViaGeoPolygon(args models.SearchArgs, reply *models.SearchReply) error {
+func (s *Search) SearchIDViaGeoPolygon(args models.SearchArgs, reply *models.SearchReply) error {
 	Filter := elastic.NewGeoPolygonFilter("location")
+	Filter2 := elastic.NewTermFilter("status", args.Search.Filter)
+
 	var point models.Point
 	for _, point = range args.Search.Polygon {
-		geoPoint := elastic.GeoPointFromLatLon(point.Lon, point.Lat)
+		geoPoint := elastic.GeoPointFromLatLon(point.Lat, point.Lon)
 		Filter = Filter.AddPoint(geoPoint)
 	}
+
 	Query := elastic.NewFilteredQuery(elastic.NewMatchAllQuery())
 	Query = Query.Filter(Filter)
+	if args.Search.Filter != "" {
+		Query = Query.Filter(Filter2)
+	}
+
+	source := elastic.NewFetchSourceContext(true)
+	source = source.Include("contact_id")
+
 	searchResult, err := s.Client.Search().
-		Index("contacts").
+		Index("facts").
+		FetchSourceContext(source).
 		Query(&Query).
 		Size(100000).
 		Do()
@@ -135,16 +150,16 @@ func (s *Search) SearchViaGeoPolygon(args models.SearchArgs, reply *models.Searc
 
 	if searchResult.Hits != nil {
 		for _, hit := range searchResult.Hits.Hits {
-			var c models.Contact
+			var c respID
 			err := json.Unmarshal(*hit.Source, &c)
 			if err != nil {
 				logs.Error(err)
 				return err
 			}
-			reply.Contacts = append(reply.Contacts, c)
+			reply.IDs = append(reply.IDs, c.ContactID)
 		}
 	} else {
-		reply.Contacts = nil
+		reply.IDs = nil
 	}
 
 	return nil
