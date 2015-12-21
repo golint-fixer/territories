@@ -86,13 +86,31 @@ func (s *Search) UnIndex(args models.ContactArgs, reply *models.ContactReply) er
 
 // SearchContacts performs a cross_field search request to elasticsearch and returns the results via RPC
 func (s *Search) SearchContacts(args models.SearchArgs, reply *models.SearchReply) error {
-	Query := elastic.NewMultiMatchQuery(args.Search.Query, "surname", "firstname") //A remplacer par fields[] plus tard
+	logs.Debug("args.Search.Query:%s", args.Search.Query)
+	logs.Debug("args.Search.Fields:%s", args.Search.Fields)
+	Query := elastic.NewMultiMatchQuery(args.Search.Query) //A remplacer par fields[] plus tard
 	Query = Query.Type("cross_fields")
 	Query = Query.Operator("and")
+
+	if args.Search.Fields[0] == "firstname" {
+		logs.Debug("firstname search")
+		Query = Query.Field("firstname")
+	} else {
+		Query = Query.Field("surname")
+		Query = Query.Field("firstname")
+		Query = Query.Field("address")
+	}
+
+	source := elastic.NewFetchSourceContext(true)
+	source = source.Include("id")
+	source = source.Include("firstname")
+	source = source.Include("surname")
+
 	searchResult, err := s.Client.Search().
 		Index("contacts").
+		FetchSourceContext(source).
 		Query(&Query).
-		Size(30).
+		Size(30000).
 		Sort("surname", true).
 		Do()
 	if err != nil {
@@ -177,7 +195,7 @@ func (s *Search) RetrieveContacts(args models.SearchArgs, reply *models.SearchRe
 		Index("contacts").
 		FetchSourceContext(source).
 		Query(&Query).
-		Size(10000000).
+		Size(100).
 		Do()
 	if err != nil {
 		logs.Critical(err)
@@ -185,6 +203,7 @@ func (s *Search) RetrieveContacts(args models.SearchArgs, reply *models.SearchRe
 	}
 
 	if searchResult.Hits != nil {
+
 		for _, hit := range searchResult.Hits.Hits {
 			var c models.Contact
 			err := json.Unmarshal(*hit.Source, &c)
@@ -195,6 +214,7 @@ func (s *Search) RetrieveContacts(args models.SearchArgs, reply *models.SearchRe
 			reply.Contacts = append(reply.Contacts, c)
 		}
 	} else {
+
 		reply.Contacts = nil
 	}
 

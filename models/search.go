@@ -3,10 +3,10 @@ package models
 
 // Search represents the search arguments
 type Search struct {
-	Query   string
-	Filter  string
-	Fields  []string
-	Polygon []Point //Declared in fact.go
+	Query   string   `json:"query,omitempty"`
+	Filter  string   `json:"filter,omitempty"`
+	Fields  []string `json:"fields,omitempty"`
+	Polygon []Point  `json:"polygon,omitempty"` //Declared in fact.go
 }
 
 // SearchArgs is used in the RPC communications between the gateway and Contacts
