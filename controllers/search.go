@@ -178,6 +178,7 @@ func (s *Search) RetrieveContacts(args models.SearchArgs, reply *models.SearchRe
 		FetchSourceContext(source).
 		Query(&Query).
 		Size(10000000).
+		Sort("surname", true).
 		Do()
 	if err != nil {
 		logs.Critical(err)
