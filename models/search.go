@@ -14,9 +14,8 @@ type SearchArgs struct {
 	Search *Search
 }
 
-// SearchReply is used in the RPC communications between the gateway and Contacts
+// SearchReply is used in the RPC communications between the gateway and Territories
 type SearchReply struct {
-	Contacts []Contact
-	Facts    []Fact
-	IDs      []uint
+	Territories []Territory
+	IDs         []uint
 }
