@@ -7,10 +7,10 @@
   "components": {
     "server": {
       "host": "0.0.0.0",
-      "port": 8082
+      "port": 8086
     },
     "sqlite3": {
-      "path": "/tmp/contacts.sqlite"
+      "path": "/tmp/territories.sqlite"
     },
     "elasticsearch": {
       "host": "http://104.155.15.235",

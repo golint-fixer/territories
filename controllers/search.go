@@ -4,12 +4,12 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	//"fmt"
 	"strconv"
 
-	"github.com/quorumsco/contacts/models"
 	"github.com/quorumsco/elastic"
 	"github.com/quorumsco/logs"
+	"github.com/quorumsco/territories/models"
 )
 
 // Search contains the search related methods and a gorm client
@@ -18,62 +18,49 @@ type Search struct {
 }
 
 type respID struct {
-	ContactID uint `json:"contact_id"`
+	TerritoryID uint `json:"territory_id"`
 }
 
 // Index indexes a contact into elasticsearch
-func (s *Search) Index(args models.ContactArgs, reply *models.ContactReply) error {
-	id := strconv.Itoa(int(args.Contact.ID))
-	if id == "" {
-		logs.Error("id is nil")
-		return errors.New("id is nil")
-	}
+func (s *Search) Index(args models.TerritoryArgs, reply *models.TerritoryReply) error {
 
-	if args.Contact.Address.Latitude != "" && args.Contact.Address.Longitude != "" {
-		args.Contact.Address.Location = fmt.Sprintf("%s,%s", args.Contact.Address.Latitude, args.Contact.Address.Longitude)
-	}
+	/*
+		id := strconv.Itoa(int(args.Territory.ID))
+		if id == "" {
+			logs.Error("id is nil")
+			return errors.New("id is nil")
+		}
 
-	_, err := s.Client.Index().
-		Index("contacts").
-		Type("contact").
-		Id(id).
-		BodyJson(args.Contact).
-		Do()
-	if err != nil {
-		logs.Critical(err)
-		return err
-	}
+			if args.Territory.Address.Latitude != "" && args.Territory.Address.Longitude != "" {
+				args.Territory.Address.Location = fmt.Sprintf("%s,%s", args.Territory.Address.Latitude, args.Territory.Address.Longitude)
+			}
 
-	return nil
-}
-
-// Index indexes a contact into elasticsearch
-func (s *Search) IndexFact(args models.FactArgs, reply *models.FactReply) error {
-	args.Fact.Contact.Address.Location = fmt.Sprintf("%s,%s", args.Fact.Contact.Address.Latitude, args.Fact.Contact.Address.Longitude)
-	_, err := s.Client.Index().
-		Index("facts").
-		Type("fact").
-		BodyJson(args.Fact).
-		Do()
-	if err != nil {
-		logs.Critical(err)
-		return err
-	}
+		_, err := s.Client.Index().
+			Index("territories").
+			Type("territory").
+			Id(id).
+			BodyJson(args.Territory).
+			Do()
+		if err != nil {
+			logs.Critical(err)
+			return err
+		}
+	*/
 
 	return nil
 }
 
 // UnIndex unindexes a contact from elasticsearch
-func (s *Search) UnIndex(args models.ContactArgs, reply *models.ContactReply) error {
-	id := strconv.Itoa(int(args.Contact.ID))
+func (s *Search) UnIndex(args models.TerritoryArgs, reply *models.TerritoryReply) error {
+	id := strconv.Itoa(int(args.Territory.ID))
 	if id == "" {
 		logs.Error("id is nil")
 		return errors.New("id is nil")
 	}
 
 	_, err := s.Client.Delete().
-		Index("contacts").
-		Type("contact").
+		Index("territories").
+		Type("territory").
 		Id(id).
 		Do()
 	if err != nil {
@@ -85,33 +72,30 @@ func (s *Search) UnIndex(args models.ContactArgs, reply *models.ContactReply) er
 }
 
 // SearchContacts performs a cross_field search request to elasticsearch and returns the results via RPC
-func (s *Search) SearchContacts(args models.SearchArgs, reply *models.SearchReply) error {
+func (s *Search) SearchTerritories(args models.SearchArgs, reply *models.SearchReply) error {
 	logs.Debug("args.Search.Query:%s", args.Search.Query)
 	logs.Debug("args.Search.Fields:%s", args.Search.Fields)
 	Query := elastic.NewMultiMatchQuery(args.Search.Query) //A remplacer par fields[] plus tard
 	Query = Query.Type("cross_fields")
 	Query = Query.Operator("and")
 
-	if args.Search.Fields[0] == "firstname" {
-		logs.Debug("firstname search")
-		Query = Query.Field("firstname")
+	if args.Search.Fields[0] == "name" {
+		logs.Debug("name search")
+		Query = Query.Field("name")
 	} else {
-		Query = Query.Field("surname")
-		Query = Query.Field("firstname")
-		Query = Query.Field("address")
+
 	}
 
 	source := elastic.NewFetchSourceContext(true)
 	source = source.Include("id")
-	source = source.Include("firstname")
-	source = source.Include("surname")
+	source = source.Include("name")
 
 	searchResult, err := s.Client.Search().
-		Index("contacts").
+		Index("territories").
 		FetchSourceContext(source).
 		Query(&Query).
 		Size(30000).
-		Sort("surname", true).
+		Sort("name", true).
 		Do()
 	if err != nil {
 		logs.Critical(err)
@@ -120,16 +104,16 @@ func (s *Search) SearchContacts(args models.SearchArgs, reply *models.SearchRepl
 
 	if searchResult.Hits != nil {
 		for _, hit := range searchResult.Hits.Hits {
-			var c models.Contact
+			var c models.Territory
 			err := json.Unmarshal(*hit.Source, &c)
 			if err != nil {
 				logs.Error(err)
 				return err
 			}
-			reply.Contacts = append(reply.Contacts, c)
+			reply.Territories = append(reply.Territories, c)
 		}
 	} else {
-		reply.Contacts = nil
+		reply.Territories = nil
 	}
 
 	return nil
@@ -174,7 +158,7 @@ func (s *Search) SearchIDViaGeoPolygon(args models.SearchArgs, reply *models.Sea
 				logs.Error(err)
 				return err
 			}
-			reply.IDs = append(reply.IDs, c.ContactID)
+			reply.IDs = append(reply.IDs, c.TerritoryID)
 		}
 	} else {
 		reply.IDs = nil
@@ -206,17 +190,17 @@ func (s *Search) RetrieveContacts(args models.SearchArgs, reply *models.SearchRe
 	if searchResult.Hits != nil {
 
 		for _, hit := range searchResult.Hits.Hits {
-			var c models.Contact
+			var c models.Territory
 			err := json.Unmarshal(*hit.Source, &c)
 			if err != nil {
 				logs.Error(err)
 				return err
 			}
-			reply.Contacts = append(reply.Contacts, c)
+			reply.Territories = append(reply.Territories, c)
 		}
 	} else {
 
-		reply.Contacts = nil
+		reply.Territories = nil
 	}
 
 	return nil

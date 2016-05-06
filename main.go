@@ -1,4 +1,4 @@
-// Contact managing structure, it does all the database CRUD interactions and contains an implementation of elasticsearch engine
+// Territory managing structure, it does all the database CRUD interactions and contains an implementation of elasticsearch engine
 package main
 
 import (
@@ -13,12 +13,12 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/jinzhu/gorm"
 	"github.com/quorumsco/cmd"
-	"github.com/quorumsco/contacts/controllers"
-	"github.com/quorumsco/contacts/models"
 	"github.com/quorumsco/databases"
 	"github.com/quorumsco/elastic"
 	"github.com/quorumsco/logs"
 	"github.com/quorumsco/settings"
+	"github.com/quorumsco/territories/controllers"
+	"github.com/quorumsco/territories/models"
 )
 
 var (
@@ -34,8 +34,8 @@ func init() {
 
 func main() {
 	cmd := cmd.New()
-	cmd.Name = "contacts"
-	cmd.Usage = "quorums contacts backend"
+	cmd.Name = "territories"
+	cmd.Usage = "quorums territories backend"
 	cmd.Version = "0.0.1"
 	cmd.Before = serve
 	cmd.Flags = append(cmd.Flags, []cli.Flag{
@@ -102,15 +102,11 @@ func serve(ctx *cli.Context) error {
 		os.Exit(1)
 	}
 
-	checkIndex("contacts", client)
-	checkIndex("facts", client)
+	checkIndex("territories", client)
 
 	rpc.Register(&controllers.Search{Client: client})
-	rpc.Register(&controllers.Contact{DB: db})
-	rpc.Register(&controllers.Note{DB: db})
-	rpc.Register(&controllers.Tag{DB: db})
-	rpc.Register(&controllers.Mission{DB: db})
-	rpc.Register(&controllers.Fact{DB: db})
+	rpc.Register(&controllers.Territory{DB: db})
+	rpc.Register(&controllers.PointLocation{DB: db})
 	rpc.HandleHTTP()
 
 	l, e := net.Listen("tcp", server.String())
